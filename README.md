@@ -1,2 +1,3 @@
 # ABCSharp
-ABC music notation parser in C#
+
+This library parses a (very) minimal set of [ABC Music Notation](http://abcnotation.com) files.
