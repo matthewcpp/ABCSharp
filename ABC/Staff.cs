@@ -30,4 +30,14 @@ namespace ABC
             note = n;
         }
     }
+
+    public class ChordItem : Item
+    {
+        public Note[] notes { get; private set; }
+
+        public ChordItem(List<Note> ns) : base(Type.Chord)
+        {
+            notes = ns.ToArray();
+        }
+    }
 }

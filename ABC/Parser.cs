@@ -59,12 +59,42 @@ namespace ABC
                     continue;
                 }
 
-                if (Elements.IsStartOfNoteStream(currentLine[index]))
+                if (currentLine[index] == '[')
+                {
+                    if (Elements.IsStartOfNoteStream(currentLine[index + 1]))
+                        ParseChord();
+                }
+                else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {
                     var note = ReadNote();
                     voice.items.Add(new NoteItem(note));
                 }
             }
+        }
+
+        void ParseChord()
+        {
+            index += 1;
+            var notes = new List<Note>();
+
+            do
+            {
+                if (!Elements.IsStartOfNoteStream(currentLine[index]))
+                    throw new ParseException(string.Format("Invalid character in chord at {0}, {1}", currentLine, index));
+
+                notes.Add(ReadNote());
+
+                if (index == currentLine.Length)
+                    throw new ParseException(string.Format("Unterminated chord at {0}, {1}", currentLine, index));
+
+            } while (currentLine[index] != ']');
+
+            index += 1;
+
+            if (notes.Count == 0)
+                throw new ParseException(string.Format("Encountered empty chord at {0}, {1}", currentLine, index));
+
+            voice.items.Add(new ChordItem(notes));
         }
 
         Note ReadNote()

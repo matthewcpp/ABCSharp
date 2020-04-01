@@ -12,7 +12,7 @@ namespace TestABC
     public class ParseBasicNotesTrebleCleff
     {
         [TestMethod]
-        public void ParseNotes()
+        public void BasicNotes()
         {
             var notes = new List<string>()
             {
