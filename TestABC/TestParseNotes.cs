@@ -115,5 +115,13 @@ namespace TestABC
                 }
             }
         }
+
+        [TestMethod]
+        public void InvalidNotes()
+        {
+            Assert.ThrowsException<ParseException>(() => { Tune.Load("#M"); });
+            Assert.ThrowsException<ParseException>(() => { Tune.Load("_M"); });
+            Assert.ThrowsException<ParseException>(() => { Tune.Load("_AB'Q"); });
+        }
     }
 }

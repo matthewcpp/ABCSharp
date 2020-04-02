@@ -49,8 +49,6 @@ namespace ABC
 
         void ParseTuneBody()
         {
-            EnsureVoice();
-
             while (index < currentLine.Length)
             {
                 if (Char.IsWhiteSpace(currentLine[index]))
@@ -66,14 +64,21 @@ namespace ABC
                 }
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {
+                    EnsureVoice();
                     var note = ReadNote();
                     voice.items.Add(new NoteItem(note));
+                }
+                else
+                {
+                    throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], currentLine, index));
                 }
             }
         }
 
         void ParseChord()
         {
+            EnsureVoice();
+            
             index += 1;
             var notes = new List<Note>();
 
@@ -112,9 +117,16 @@ namespace ABC
             // start with default C value for the clef
             int noteValue = (int)Elements.cleffReferenceNotes[voice.cleff];
 
-            // adjust the value based on the actual note value
-            noteValue += Elements.GetNoteOffset(currentLine[index]);
-            index += 1;
+            try
+            {
+                // adjust the value based on the actual note value
+                noteValue += Elements.GetNoteOffset(currentLine[index]);
+                index += 1;
+            }
+            catch (ParseException e)
+            {
+                throw new ParseException(string.Format("{0} at {1}, {2}", e.Message, currentLine, index));
+            }
 
             if (index < currentLine.Length)
             {
