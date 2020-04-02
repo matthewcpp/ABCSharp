@@ -44,9 +44,10 @@ namespace TestABC
         }
 
         [TestMethod]
-        public void InvalidChordCharacter()
+        public void InvalidCharacterInChord()
         {
             Assert.ThrowsException<ParseException>(() => { Tune.Load("[CE[G]"); });
+            Assert.ThrowsException<ParseException>(() => { Tune.Load("[#gAB]"); });
         }
     }
 }

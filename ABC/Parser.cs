@@ -61,6 +61,14 @@ namespace ABC
                 {
                     if (Elements.IsStartOfNoteStream(currentLine[index + 1]))
                         ParseChord();
+                    else
+                        throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], currentLine, index));
+                }
+                else if (currentLine[index] == '|')
+                {
+                    EnsureVoice();
+                    voice.items.Add(new BarItem(new Bar(Bar.Type.Line)));
+                    index += 1;
                 }
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {

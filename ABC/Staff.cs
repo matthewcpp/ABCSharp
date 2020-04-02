@@ -4,6 +4,7 @@ using System.Text;
 
 namespace ABC
 {
+
     abstract public class Item
     {
         public enum Type
@@ -38,6 +39,16 @@ namespace ABC
         public ChordItem(List<Note> ns) : base(Type.Chord)
         {
             notes = ns.ToArray();
+        }
+    }
+
+    public class BarItem : Item
+    {
+        public Bar bar {get;}
+
+        public BarItem(Bar b) : base(Type.Bar)
+        {
+            bar = b;
         }
     }
 }
