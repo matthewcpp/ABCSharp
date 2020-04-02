@@ -5,7 +5,7 @@ using System.Text;
 namespace ABC
 {
 
-    abstract public class Item
+    public abstract class Item
     {
         public enum Type
         {
