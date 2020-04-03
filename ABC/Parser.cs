@@ -75,12 +75,12 @@ namespace ABC
             return index == currentLine.Length;
         }
 
-        void ParseInlineInformationField()
+        void ParseTuneBodyInformationField()
         {
             index += 1; // [
             bool eol = ReadUntil((char c) => { return c == ']'; }, out string inlineInformationField);
             if (eol)
-                throw new ParseException(string.Format("Unterminated inline information field at: {0}, {1}", currentLine, index - inlineInformationField.Length));
+                throw new ParseException($"Unterminated information field at: {lineNum}, {index - inlineInformationField.Length}");
 
             index += 1; // ] 
 
@@ -107,9 +107,9 @@ namespace ABC
                     if (Elements.IsStartOfNoteStream(currentLine[index + 1]))
                         ParseChord();
                     else if (IsStartOfInformationField(index + 1))
-                        ParseInlineInformationField();
+                        ParseTuneBodyInformationField();
                     else
-                        throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], lineNum, index));
+                        throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
                 }
                 else if (currentLine[index] == '|')
                 {
@@ -125,7 +125,7 @@ namespace ABC
                 }
                 else
                 {
-                    throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], lineNum, index));
+                    throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
                 }
             }
         }
@@ -140,19 +140,19 @@ namespace ABC
             do
             {
                 if (!Elements.IsStartOfNoteStream(currentLine[index]))
-                    throw new ParseException(string.Format("Invalid character in chord at {0}, {1}", lineNum, index));
+                    throw new ParseException($"Invalid character in chord at {lineNum}, {index}");
 
                 notes.Add(ReadNote());
 
                 if (index == currentLine.Length)
-                    throw new ParseException(string.Format("Unterminated chord at {0}, {1}", lineNum, index));
+                    throw new ParseException($"Unterminated chord at {lineNum}, {index}");
 
             } while (currentLine[index] != ']');
 
             index += 1;
 
             if (notes.Count == 0)
-                throw new ParseException(string.Format("Encountered empty chord at {0}, {1}", lineNum, index));
+                throw new ParseException($"Encountered empty chord at {lineNum}, {index}");
 
             voice.items.Add(new ChordItem(notes));
         }
@@ -180,7 +180,7 @@ namespace ABC
             }
             catch (ParseException e)
             {
-                throw new ParseException(string.Format("{0} at {1}, {2}", e.Message, lineNum, index));
+                throw new ParseException($"{e.Message} at {lineNum}, {index}");
             }
 
             if (index < currentLine.Length)
@@ -223,7 +223,7 @@ namespace ABC
             if (uint.TryParse(referenceNumberStr, out referenceNumber))
                 tune.referenceNumber = referenceNumber;
             else
-                throw new ParseException(string.Format("Error Parsing Reference number {0},{1}", lineNum, 3));
+                throw new ParseException($"Error Parsing Reference number: {referenceNumberStr} at {lineNum},{index + 2}");
         }
 
         private bool ReadModifierValue(out string result)
@@ -262,12 +262,12 @@ namespace ABC
             {
                 eol = ReadUntil((char c) => { return char.IsWhiteSpace(c) || c == '='; }, out string key);
                 if (eol)
-                    throw new ParseException(string.Format("Unterminated Modifier at {0}, {1}", lineNum, index));
+                    throw new ParseException($"Unterminated Modifier at {lineNum}, {index}");
                 
                 SkipWhiteSpace();
                 
                 if (currentLine[index] != '=')
-                    throw new ParseException(string.Format("Unexpected Character {0} at {1}, {2}", currentLine[index], lineNum, index));
+                    throw new ParseException($"Unexpected Character {currentLine[index]} at {lineNum}, {index}");
                 
                 index += 1;
                 
@@ -286,7 +286,7 @@ namespace ABC
                         }
                         catch (ArgumentException e)
                         {
-                            throw new ParseException(string.Format("Invalid clef value {0} at {1}, {2}", value, lineNum, index - value.Length));
+                            throw new ParseException($"Invalid clef value {value} at {lineNum}, {index - value.Length}");
                         }
                         
                         break;
