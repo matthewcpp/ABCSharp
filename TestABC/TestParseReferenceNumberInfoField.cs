@@ -9,7 +9,7 @@ using ABC;
 namespace TestABC
 {
     [TestClass]
-    public class TestParseHeader
+    public class TestParseReferenceNumberInfoField
     {
         [TestMethod]
         public void ParseReferenceNumber()

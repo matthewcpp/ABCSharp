@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace ABC
 {
     class Parser
     {
+        TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
         private Stream stream;
         private Tune tune;
 
@@ -29,7 +31,9 @@ namespace ABC
                 lineNum += 1;
                 index = 0;
 
-                if (LineIsInformationField())
+                if (SkipWhiteSpace()) continue;
+
+                if (IsStartOfInformationField(index))
                     ParseInformationField();
                 else
                     ParseTuneBody();
@@ -38,31 +42,74 @@ namespace ABC
             return tune;
         }
 
+        private static string defaultVoiceIdentifier = "__default__";
+        
         void EnsureVoice()
         {
-            if (voice == null)
+            if (voice != null) return;
+            
+            voice = new Voice(defaultVoiceIdentifier);
+            tune.voices.Add(voice);
+        }
+
+        bool SkipWhiteSpace()
+        {
+            while (index < currentLine.Length && Char.IsWhiteSpace(currentLine[index]))
+                index += 1;
+
+            return index == currentLine.Length;
+        }
+
+        bool ReadUntil(Func<char, bool> condition, out string result)
+        {
+            int start = index;
+            int length = 0;
+            while (index + length < currentLine.Length && !condition(currentLine[index + length]))
             {
-                voice = new Voice();
-                tune.voices.Add(voice);
+                length += 1;
             }
+
+            result = currentLine.Substring(start, length);
+            index += length;
+
+            return index == currentLine.Length;
+        }
+
+        void ParseInlineInformationField()
+        {
+            index += 1; // [
+            bool eol = ReadUntil((char c) => { return c == ']'; }, out string inlineInformationField);
+            if (eol)
+                throw new ParseException(string.Format("Unterminated inline information field at: {0}, {1}", currentLine, index - inlineInformationField.Length));
+
+            index += 1; // ] 
+
+            var savedCurrentLine = currentLine;
+            var savedIndex = index;
+
+            currentLine = inlineInformationField;
+            index = 0;
+
+            ParseInformationField();
+
+            currentLine = savedCurrentLine;
+            index = savedIndex;
         }
 
         void ParseTuneBody()
         {
             while (index < currentLine.Length)
             {
-                if (Char.IsWhiteSpace(currentLine[index]))
-                {
-                    index += 1;
-                    continue;
-                }
+                if (SkipWhiteSpace()) return;
 
                 if (currentLine[index] == '[')
                 {
                     if (Elements.IsStartOfNoteStream(currentLine[index + 1]))
                         ParseChord();
+                    else if (IsStartOfInformationField(index + 1))
+                        ParseInlineInformationField();
                     else
-                        throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], currentLine, index));
+                        throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], lineNum, index));
                 }
                 else if (currentLine[index] == '|')
                 {
@@ -78,7 +125,7 @@ namespace ABC
                 }
                 else
                 {
-                    throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], currentLine, index));
+                    throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], lineNum, index));
                 }
             }
         }
@@ -93,19 +140,19 @@ namespace ABC
             do
             {
                 if (!Elements.IsStartOfNoteStream(currentLine[index]))
-                    throw new ParseException(string.Format("Invalid character in chord at {0}, {1}", currentLine, index));
+                    throw new ParseException(string.Format("Invalid character in chord at {0}, {1}", lineNum, index));
 
                 notes.Add(ReadNote());
 
                 if (index == currentLine.Length)
-                    throw new ParseException(string.Format("Unterminated chord at {0}, {1}", currentLine, index));
+                    throw new ParseException(string.Format("Unterminated chord at {0}, {1}", lineNum, index));
 
             } while (currentLine[index] != ']');
 
             index += 1;
 
             if (notes.Count == 0)
-                throw new ParseException(string.Format("Encountered empty chord at {0}, {1}", currentLine, index));
+                throw new ParseException(string.Format("Encountered empty chord at {0}, {1}", lineNum, index));
 
             voice.items.Add(new ChordItem(notes));
         }
@@ -122,8 +169,8 @@ namespace ABC
             if (index == currentLine.Length)
                 throw new ParseException("Invalid note specification");
 
-            // start with default C value for the clef
-            int noteValue = (int)Elements.cleffReferenceNotes[voice.cleff];
+            // start with Middle C aka 'C'
+            int noteValue = (int) Note.Value.C4;
 
             try
             {
@@ -133,7 +180,7 @@ namespace ABC
             }
             catch (ParseException e)
             {
-                throw new ParseException(string.Format("{0} at {1}, {2}", e.Message, currentLine, index));
+                throw new ParseException(string.Format("{0} at {1}, {2}", e.Message, lineNum, index));
             }
 
             if (index < currentLine.Length)
@@ -157,35 +204,113 @@ namespace ABC
 
         void ParseInformationField()
         {
-            switch (currentLine[0])
+            switch (currentLine[index])
             {
                 case 'X':
                     ParseReferenceNumber();
+                    break;
+
+                case 'V':
+                    ParseVoiceHeader();
                     break;
             }
         }
 
         void ParseReferenceNumber()
         {
-            string referenceNumberStr = currentLine.Substring(2);
+            string referenceNumberStr = currentLine.Substring(index + 2);
             uint referenceNumber;
             if (uint.TryParse(referenceNumberStr, out referenceNumber))
                 tune.referenceNumber = referenceNumber;
             else
-                throw new ParseException(string.Format("Error Parsing Reference number {0},{1}", currentLine, 3));
+                throw new ParseException(string.Format("Error Parsing Reference number {0},{1}", lineNum, 3));
         }
 
-        bool LineIsInformationField()
+        private bool ReadModifierValue(out string result)
         {
-            if (currentLine.Length < 2)
+            if (currentLine[index] == '"')
+            {
+                index += 1;
+                bool eol = ReadUntil((char c) => { return c == '"';}, out result);
+                index += 1;
+
+                return eol;
+            }
+            
+            return ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out result);
+        }
+        
+        void ParseVoiceHeader()
+        {
+            index += 2;
+
+            //read voice identifier
+            SkipWhiteSpace();
+            bool eol = ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out string identifier);
+
+            voice = tune.FindVoice(identifier);
+
+            if (voice == null)
+            {
+                voice = new Voice(identifier);
+                tune.voices.Add(voice);
+            }
+            
+            if(SkipWhiteSpace()) return;
+
+            while (!eol)
+            {
+                eol = ReadUntil((char c) => { return char.IsWhiteSpace(c) || c == '='; }, out string key);
+                if (eol)
+                    throw new ParseException(string.Format("Unterminated Modifier at {0}, {1}", lineNum, index));
+                
+                SkipWhiteSpace();
+                
+                if (currentLine[index] != '=')
+                    throw new ParseException(string.Format("Unexpected Character {0} at {1}, {2}", currentLine[index], lineNum, index));
+                
+                index += 1;
+                
+                SkipWhiteSpace();
+
+                ReadModifierValue(out string value);
+
+                switch (key)
+                {
+                    case "clef":
+                        var clefString = textInfo.ToTitleCase(value);
+
+                        try
+                        {
+                            voice.cleff = (Cleff) Enum.Parse(typeof(Cleff), clefString);
+                        }
+                        catch (ArgumentException e)
+                        {
+                            throw new ParseException(string.Format("Invalid clef value {0} at {1}, {2}", value, lineNum, index - value.Length));
+                        }
+                        
+                        break;
+                    
+                    case "name":
+                        voice.name = value;
+                        break;
+                }
+
+                eol = SkipWhiteSpace();
+            }
+        }
+
+        bool IsStartOfInformationField(int pos)
+        {
+            if (pos > currentLine.Length - 2)
                 return false;
 
-            char ch = Char.ToLower(currentLine[0]);
+            char ch = Char.ToLower(currentLine[pos]);
 
             if (ch < 'a' || ch > 'z')
                 return false;
 
-            if (currentLine[1] != ':')
+            if (currentLine[pos + 1] != ':')
                 return false;
 
             return true;

@@ -22,11 +22,6 @@ namespace ABC
             { ',', -7 }, { '\'', 7 }
         };
 
-        public static Dictionary<Cleff, Note.Value> cleffReferenceNotes = new Dictionary<Cleff, Note.Value>()
-        {
-            { Cleff.Treble, Note.Value.C4}
-        };
-
         public static bool IsStartOfNoteStream(int val)
         {
             return Elements.notes.ContainsKey(val) || Elements.accidentals.ContainsKey(val);

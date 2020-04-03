@@ -18,5 +18,10 @@ namespace ABC
                 return Parser.Parse(stream);
             }
         }
+
+        public Voice FindVoice(string identifier)
+        {
+            return voices.Find((Voice v) => { return v.identifier == identifier; });
+        }
     }
 }

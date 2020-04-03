@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,38 +10,31 @@ using ABC;
 namespace TestABC
 {
     [TestClass]
-    public class ParseBasicNotesTrebleCleff
+    public class TestParseNotes
     {
         [TestMethod]
         public void BasicNotes()
         {
-            var notes = new List<string>()
+            var notes = "C,,C,Ccc'c''";
+
+            var expectedNotes = new List<Note>()
             {
-                "C", "c", "C''",
-                "D", "d", "d'"
+                new Note(Note.Value.C2), new Note(Note.Value.C3), 
+                new Note(Note.Value.C4), new Note(Note.Value.C5), 
+                new Note(Note.Value.C6), new Note(Note.Value.C7)
             };
+            
+            var tune = Tune.Load(notes);
 
-            var expectedNotes = new List<Note>
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+            
+            Assert.AreEqual(expectedNotes.Count, voice.items.Count);
+
+            for (int i = 0; i < expectedNotes.Count; i++)
             {
-                new Note(Note.Value.C4), new Note(Note.Value.C5), new Note(Note.Value.C6),
-                new Note(Note.Value.D4), new Note(Note.Value.D5), new Note(Note.Value.D6)
-            };
-
-            Assert.AreEqual(notes.Count, expectedNotes.Count);
-
-            for (int i = 0; i < notes.Count; i++)
-            {
-                var tune = Tune.Load(notes[i]);
-                Assert.AreEqual(1, tune.voices.Count);
-
-                var voice = tune.voices[0];
-
-                Assert.AreEqual(Cleff.Treble, voice.cleff);
-                Assert.AreEqual(1, voice.items.Count);
-
-                Assert.AreEqual(Item.Type.Note, voice.items[0].type);
-                var noteItem = voice.items[0] as NoteItem;
-
+                Assert.AreEqual(Item.Type.Note, voice.items[i].type);
+                var noteItem = voice.items[i] as NoteItem;
                 Assert.AreEqual(expectedNotes[i], noteItem.note);
             }
         }
