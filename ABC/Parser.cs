@@ -40,15 +40,14 @@ namespace ABC
             return tune;
         }
 
-        void EnsureVoice(string identifier = "__default__")
+        private static string defaultVoiceIdentifier = "__default__";
+        
+        void EnsureVoice()
         {
-            voice = tune.FindVoice(identifier);
-
-            if (voice == null)
-            {
-                voice = new Voice(identifier);
-                tune.voices.Add(voice);
-            }
+            if (voice != null) return;
+            
+            voice = new Voice(defaultVoiceIdentifier);
+            tune.voices.Add(voice);
         }
 
         bool SkipWhiteSpace()
@@ -145,8 +144,8 @@ namespace ABC
             if (index == currentLine.Length)
                 throw new ParseException("Invalid note specification");
 
-            // start with default C value for the clef
-            int noteValue = (int)Elements.cleffReferenceNotes[voice.cleff];
+            // start with Middle C aka 'C'
+            int noteValue = (int) Note.Value.C4;
 
             try
             {
@@ -201,6 +200,20 @@ namespace ABC
             else
                 throw new ParseException(string.Format("Error Parsing Reference number {0},{1}", lineNum, 3));
         }
+
+        private bool ReadModifierValue(out string result)
+        {
+            if (currentLine[index] == '"')
+            {
+                index += 1;
+                bool eol = ReadUntil((char c) => { return c == '"';}, out result);
+                index += 1;
+
+                return eol;
+            }
+            
+            return ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out result);
+        }
         
         void ParseVoiceHeader()
         {
@@ -210,7 +223,8 @@ namespace ABC
             SkipWhiteSpace();
             bool eol = ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out string identifier);
 
-            EnsureVoice(identifier);
+            voice = new Voice(identifier);
+            tune.voices.Add(voice);
             
             if(SkipWhiteSpace()) return;
             
@@ -229,8 +243,8 @@ namespace ABC
                 index += 1;
                 
                 SkipWhiteSpace();
-                
-                ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out string value);
+
+                ReadModifierValue(out string value);
 
                 switch (key)
                 {

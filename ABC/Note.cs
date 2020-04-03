@@ -115,6 +115,11 @@ namespace ABC
             hashCode = hashCode * -1521134295 + length.GetHashCode();
             return hashCode;
         }
+
+        public override string ToString()
+        {
+            return $"{value.ToString()}, {accidental.ToString()}, {length.ToString()}";
+        }
     }
 
 }

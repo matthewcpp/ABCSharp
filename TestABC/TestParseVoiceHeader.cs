@@ -44,10 +44,11 @@ namespace TestABC
         [TestMethod]
         public void SetsName()
         {
-            var tune = Tune.Load("V:1 name=test");
+            var tune = Tune.Load("V:1 name=test\nV:2 name=\"two words\"");
             
-            Assert.AreEqual(1, tune.voices.Count);
+            Assert.AreEqual(2, tune.voices.Count);
             Assert.AreEqual("test", tune.voices[0].name);
+            Assert.AreEqual("two words", tune.voices[1].name);
         }
     }
 }
