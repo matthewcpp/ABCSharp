@@ -31,7 +31,9 @@ namespace ABC
                 lineNum += 1;
                 index = 0;
 
-                if (LineIsInformationField())
+                if (SkipWhiteSpace()) continue;
+
+                if (IsStartOfInformationField(index))
                     ParseInformationField();
                 else
                     ParseTuneBody();
@@ -73,6 +75,27 @@ namespace ABC
             return index == currentLine.Length;
         }
 
+        void ParseInlineInformationField()
+        {
+            index += 1; // [
+            bool eol = ReadUntil((char c) => { return c == ']'; }, out string inlineInformationField);
+            if (eol)
+                throw new ParseException(string.Format("Unterminated inline information field at: {0}, {1}", currentLine, index - inlineInformationField.Length));
+
+            index += 1; // ] 
+
+            var savedCurrentLine = currentLine;
+            var savedIndex = index;
+
+            currentLine = inlineInformationField;
+            index = 0;
+
+            ParseInformationField();
+
+            currentLine = savedCurrentLine;
+            index = savedIndex;
+        }
+
         void ParseTuneBody()
         {
             while (index < currentLine.Length)
@@ -83,6 +106,8 @@ namespace ABC
                 {
                     if (Elements.IsStartOfNoteStream(currentLine[index + 1]))
                         ParseChord();
+                    else if (IsStartOfInformationField(index + 1))
+                        ParseInlineInformationField();
                     else
                         throw new ParseException(string.Format("Unexpected character: {0} at {1}, {2}", currentLine[index], lineNum, index));
                 }
@@ -179,7 +204,7 @@ namespace ABC
 
         void ParseInformationField()
         {
-            switch (currentLine[0])
+            switch (currentLine[index])
             {
                 case 'X':
                     ParseReferenceNumber();
@@ -193,7 +218,7 @@ namespace ABC
 
         void ParseReferenceNumber()
         {
-            string referenceNumberStr = currentLine.Substring(2);
+            string referenceNumberStr = currentLine.Substring(index + 2);
             uint referenceNumber;
             if (uint.TryParse(referenceNumberStr, out referenceNumber))
                 tune.referenceNumber = referenceNumber;
@@ -223,11 +248,15 @@ namespace ABC
             SkipWhiteSpace();
             bool eol = ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out string identifier);
 
-            voice = new Voice(identifier);
-            tune.voices.Add(voice);
+            voice = tune.FindVoice(identifier);
+
+            if (voice == null)
+            {
+                voice = new Voice(identifier);
+                tune.voices.Add(voice);
+            }
             
             if(SkipWhiteSpace()) return;
-            
 
             while (!eol)
             {
@@ -271,17 +300,17 @@ namespace ABC
             }
         }
 
-        bool LineIsInformationField()
+        bool IsStartOfInformationField(int pos)
         {
-            if (currentLine.Length < 2)
+            if (pos > currentLine.Length - 2)
                 return false;
 
-            char ch = Char.ToLower(currentLine[0]);
+            char ch = Char.ToLower(currentLine[pos]);
 
             if (ch < 'a' || ch > 'z')
                 return false;
 
-            if (currentLine[1] != ':')
+            if (currentLine[pos + 1] != ':')
                 return false;
 
             return true;
