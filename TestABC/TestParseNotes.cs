@@ -64,7 +64,7 @@ namespace TestABC
                 Assert.AreEqual(1, tune.voices.Count);
                 var staff = tune.voices[0];
 
-                Assert.AreEqual(Cleff.Treble, staff.cleff);
+                Assert.AreEqual(Clef.Treble, staff.clef);
                 Assert.AreEqual(1, staff.items.Count);
 
                 Assert.AreEqual(Item.Type.Note, staff.items[0].type);
@@ -97,7 +97,7 @@ namespace TestABC
                 Assert.AreEqual(1, tune.voices.Count);
                 var voice = tune.voices[0];
 
-                Assert.AreEqual(Cleff.Treble, voice.cleff);
+                Assert.AreEqual(Clef.Treble, voice.clef);
                 Assert.AreEqual(expectedNotes.Count, voice.items.Count);
 
                 for (int i = 0; i < expectedNotes.Count; i++)

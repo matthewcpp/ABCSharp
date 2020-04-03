@@ -282,7 +282,7 @@ namespace ABC
 
                         try
                         {
-                            voice.cleff = (Cleff) Enum.Parse(typeof(Cleff), clefString);
+                            voice.clef = (Clef) Enum.Parse(typeof(Clef), clefString);
                         }
                         catch (ArgumentException e)
                         {

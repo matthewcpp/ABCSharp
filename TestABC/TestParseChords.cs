@@ -26,7 +26,7 @@ namespace TestABC
             Assert.AreEqual(1, tune.voices.Count);
             var voice = tune.voices[0];
 
-            Assert.AreEqual(Cleff.Treble, voice.cleff);
+            Assert.AreEqual(Clef.Treble, voice.clef);
             Assert.AreEqual(1, voice.items.Count);
 
             Assert.AreEqual(Item.Type.Chord, voice.items[0].type);
