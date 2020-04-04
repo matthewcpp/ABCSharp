@@ -9,10 +9,11 @@ namespace ABC
     class Parser
     {
         TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
-        private Stream stream;
         private Tune tune;
 
         private Voice voice;
+
+        private Note.Length unitNoteLength = Note.Length.Eighth;
 
         StreamReader reader;
 
@@ -162,7 +163,8 @@ namespace ABC
             var note = new Note();
 
             note.accidental = Elements.GetAccidental(currentLine[index]);
-            note.length = Note.Length.Eighth; // temp until note length parsing
+            note.length = unitNoteLength; // temp until note length parsing
+            
             if (note.accidental != Note.Accidental.Unspecified)
                 index += 1;
 
@@ -213,14 +215,31 @@ namespace ABC
                 case 'V':
                     ParseVoiceHeader();
                     break;
+                
+                case 'L':
+                    ParseUnitNoteLengthInformation();
+                    break;
             }
+        }
+
+        void ParseUnitNoteLengthInformation()
+        {
+            index += 2;
+
+            if (SkipWhiteSpace())
+                throw new ParseException($"Unterminated Note Length field at {lineNum}, {index}");
+
+            var lengthInfo = currentLine.Substring(index).TrimEnd();
+            if (!Elements.noteLengths.TryGetValue(lengthInfo, out Note.Length length))
+                throw new ParseException($"Unrecognized note length: {lengthInfo} at {lineNum}, {index - lengthInfo.Length}");
+
+            unitNoteLength = length;
         }
 
         void ParseReferenceNumber()
         {
             string referenceNumberStr = currentLine.Substring(index + 2);
-            uint referenceNumber;
-            if (uint.TryParse(referenceNumberStr, out referenceNumber))
+            if (uint.TryParse(referenceNumberStr, out uint referenceNumber))
                 tune.referenceNumber = referenceNumber;
             else
                 throw new ParseException($"Error Parsing Reference number: {referenceNumberStr} at {lineNum},{index + 2}");
@@ -284,7 +303,7 @@ namespace ABC
                         {
                             voice.clef = (Clef) Enum.Parse(typeof(Clef), clefString);
                         }
-                        catch (ArgumentException e)
+                        catch (ArgumentException)
                         {
                             throw new ParseException($"Invalid clef value {value} at {lineNum}, {index - value.Length}");
                         }

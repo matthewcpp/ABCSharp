@@ -22,6 +22,12 @@ namespace ABC
             { ',', -7 }, { '\'', 7 }
         };
 
+        public static Dictionary<string, Note.Length> noteLengths = new Dictionary<string, Note.Length>()
+        {
+            {"1", Note.Length.Whole}, {"1/1", Note.Length.Whole}, {"1/2", Note.Length.Half},
+            {"1/4", Note.Length.Quater}, {"1/8", Note.Length.Eighth}, {"1/16", Note.Length.Sixteenth}
+        };
+
         public static bool IsStartOfNoteStream(int val)
         {
             return Elements.notes.ContainsKey(val) || Elements.accidentals.ContainsKey(val);
