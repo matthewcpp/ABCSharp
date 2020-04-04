@@ -22,7 +22,7 @@ namespace TestABC
 
             var expectedUnitLengths = new List<Note.Length>()
             {
-                Note.Length.Whole, Note.Length.Whole, Note.Length.Half, Note.Length.Quater, Note.Length.Eighth, Note.Length.Sixteenth
+                Note.Length.Whole, Note.Length.Whole, Note.Length.Half, Note.Length.Quarter, Note.Length.Eighth, Note.Length.Sixteenth
             };
             
             Assert.AreEqual(expectedUnitLengths.Count, lengthValues.Count);
@@ -67,7 +67,7 @@ namespace TestABC
 
             var expectedNoteLengths = new List<Note.Length>()
             {
-                Note.Length.Half, Note.Length.Quater, Note.Length.Whole, Note.Length.Eighth
+                Note.Length.Half, Note.Length.Quarter, Note.Length.Whole, Note.Length.Eighth
             };
 
             var tune = Tune.Load(abc);

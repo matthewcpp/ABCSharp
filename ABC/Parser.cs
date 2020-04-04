@@ -61,16 +61,25 @@ namespace ABC
             return index == currentLine.Length;
         }
 
+
+        /// <summary>
+        /// Reads the current line until the supplied condition is returned true
+        /// </summary>
+        /// <param name="condition">function to be run on each character.  If this function returns false processing will cease.</param>
+        /// <param name="result">will receive a substring of the current line consisting of the characters read.  if nothing is read will be set to empty string</param>
+        /// <returns>boolean value indicating whether the end of the line was reached</returns>
         bool ReadUntil(Func<char, bool> condition, out string result)
         {
             int start = index;
             int length = 0;
             while (index + length < currentLine.Length && !condition(currentLine[index + length]))
-            {
                 length += 1;
-            }
 
-            result = currentLine.Substring(start, length);
+            if (length > 0)
+                result = currentLine.Substring(start, length);
+            else
+                result = string.Empty;
+
             index += length;
 
             return index == currentLine.Length;
@@ -163,7 +172,6 @@ namespace ABC
             var note = new Note();
 
             note.accidental = Elements.GetAccidental(currentLine[index]);
-            note.length = unitNoteLength; // temp until note length parsing
             
             if (note.accidental != Note.Accidental.Unspecified)
                 index += 1;
@@ -200,8 +208,51 @@ namespace ABC
                 throw new ParseException("Invalid note value");
 
             note.value = (Note.Value)noteValue;
+            note.length = ParseNoteLengthModifier();
 
             return note;
+        }
+
+        Note.Length ParseNoteLengthModifier()
+        {
+            // length modifier will be either '/*' or '/N'
+            ReadUntil((char c) => { return !char.IsDigit(c) && c != '/'; }, out string lengthMod);
+
+            if (lengthMod.Length == 0) // no modifier specified
+                return unitNoteLength;
+
+            int lengthValue = (int)unitNoteLength;
+
+            if (char.IsDigit(lengthMod[0]))  // ex: A2
+            {
+                if (!int.TryParse(lengthMod, out int value))
+                    throw new ParseException($"Invalid note length modifier {lengthMod} at {lineNum},{index}");
+
+                lengthValue = (int)unitNoteLength / value;
+            }
+            else if (lengthMod.Length > 1 && char.IsDigit(lengthMod[1])) //ex: A/2  
+            {
+                if (!int.TryParse(lengthMod.Substring(1), out int value))
+                    throw new ParseException($"Invalid note length modifier {lengthMod} at {lineNum},{index}");
+
+                lengthValue = (int)unitNoteLength * value;
+            }
+            else // ex: A//
+            {
+                for (int i = 0; i < lengthMod.Length; i++) // all characters should be '/'
+                {
+                    if (lengthMod[i] != '/')
+                        throw new ParseException($"Invalid note length modifier {lengthMod} at {lineNum},{index}");
+                }
+
+                lengthValue = (int)unitNoteLength * (1 << lengthMod.Length);
+            }
+
+            // ensure that final calculated value is a supported enumeration value
+            if (Enum.IsDefined(typeof(Note.Length), lengthValue))
+                return (Note.Length)Enum.ToObject(typeof(Note.Length), lengthValue);
+            else
+                throw new ParseException($"Note length modifier resulted in invalid note length  at {lineNum},{index}");
         }
 
         void ParseInformationField()
