@@ -5,7 +5,7 @@
 This library parses a (very) minimal set of [ABC Music Notation](http://abcnotation.com) files.
 
 Supported Features:
-- Notes: Accidentals, Octatve Modifiers Chords
+- Notes: Accidentals, Octatve Modifiers, Chords, Length Modifier
 - Bar Line
 - Multiple Voices: clef(treble, bass) and name modifiers
 
