@@ -8,6 +8,7 @@ namespace ABC
     public class Tune
     {
         public uint referenceNumber { get; set; } = 1;
+        public string title { get; set; }
         public List<Voice> voices { get; } = new List<Voice>();
 
         public static Tune Load(string text)

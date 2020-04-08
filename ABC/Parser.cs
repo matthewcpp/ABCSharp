@@ -20,6 +20,7 @@ namespace ABC
         int lineNum = 0;
         int index = 0;
         string currentLine;
+        private bool parsingTuneBody = false;
 
         public Tune Parse(Stream stream)
         {
@@ -108,6 +109,8 @@ namespace ABC
 
         void ParseTuneBody()
         {
+            parsingTuneBody = true;
+            
             while (index < currentLine.Length)
             {
                 if (SkipWhiteSpace()) return;
@@ -263,14 +266,27 @@ namespace ABC
                     ParseReferenceNumber();
                     break;
 
+                case 'T':
+                    ParseTitle();
+                    break;
+
                 case 'V':
                     ParseVoiceHeader();
                     break;
-                
+
                 case 'L':
                     ParseUnitNoteLengthInformation();
                     break;
             }
+        }
+
+        void ParseTitle()
+        {
+            if (parsingTuneBody)
+                throw new ParseException($"Title should not be set in tune body at {lineNum}, {index}");
+            
+            index += 2;
+            tune.title = currentLine.Substring(index);
         }
 
         void ParseUnitNoteLengthInformation()
