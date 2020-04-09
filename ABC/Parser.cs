@@ -14,6 +14,7 @@ namespace ABC
         private Voice voice;
 
         private Note.Length unitNoteLength = Note.Length.Eighth;
+        private string timeSignature;
 
         StreamReader reader;
 
@@ -51,6 +52,10 @@ namespace ABC
             if (voice != null) return;
             
             voice = new Voice(defaultVoiceIdentifier);
+            
+            if (timeSignature != null)
+                voice.items.Add(new TimeSignatureItem(timeSignature));
+            
             tune.voices.Add(voice);
         }
 
@@ -277,6 +282,22 @@ namespace ABC
                 case 'L':
                     ParseUnitNoteLengthInformation();
                     break;
+                
+                case 'M':
+                    ParseTimeSignature();
+                    break;
+            }
+        }
+
+        void ParseTimeSignature()
+        {
+            index += 2;
+            timeSignature = currentLine.Substring(index).Trim();
+
+            if (parsingTuneBody)
+            {
+                foreach (var v in tune.voices)
+                    v.items.Add(new TimeSignatureItem(timeSignature));
             }
         }
 
@@ -339,6 +360,10 @@ namespace ABC
             if (voice == null)
             {
                 voice = new Voice(identifier);
+
+                if (timeSignature != null)
+                    voice.items.Add(new TimeSignatureItem(timeSignature));
+
                 tune.voices.Add(voice);
             }
             

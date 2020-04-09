@@ -11,7 +11,8 @@ namespace ABC
         {
             Note,
             Chord,
-            Bar
+            Bar,
+            TimeSignature
         }
 
         public Type type { get; }
@@ -50,5 +51,16 @@ namespace ABC
         {
             bar = b;
         }
+    }
+
+    public class TimeSignatureItem : Item
+    {
+        public string timeSignature { get; }
+
+        public TimeSignatureItem(string ts) : base(Type.TimeSignature)
+        {
+            timeSignature = ts;
+        }
+        
     }
 }

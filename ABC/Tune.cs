@@ -11,6 +11,9 @@ namespace ABC
         public string title { get; set; }
         public List<Voice> voices { get; } = new List<Voice>();
 
+        /// <summary>
+        /// Loads a Tune from a string
+        /// </summary>
         public static Tune Load(string text)
         {
             var Parser = new Parser();
@@ -20,6 +23,22 @@ namespace ABC
             }
         }
 
+        /// <summary>
+        /// Loads a tune from a stream.
+        /// </summary>
+        public static Tune Load(Stream stream)
+        {
+            if (!stream.CanRead)
+                throw new ParseException("Unable to read from supplied stream.");
+
+            var Parser = new Parser();
+            return Parser.Parse(stream);
+        }
+
+        /// <summary>
+        /// Gets a voice with the given identifier.
+        /// </summary>
+        /// <returns>Voice object which has the supplied identifier, or null if no voice was found.</returns>
         public Voice FindVoice(string identifier)
         {
             return voices.Find((Voice v) => { return v.identifier == identifier; });
