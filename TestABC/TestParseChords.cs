@@ -29,8 +29,32 @@ namespace TestABC
             Assert.AreEqual(Clef.Treble, voice.clef);
             Assert.AreEqual(1, voice.items.Count);
 
-            Assert.AreEqual(Item.Type.Chord, voice.items[0].type);
             var chord = voice.items[0] as ChordItem;
+            Assert.IsNotNull(chord);
+            Assert.AreEqual(expectedNotes.Count, chord.notes.Length);
+
+            for (int i = 0; i < expectedNotes.Count; i++)
+                Assert.AreEqual(expectedNotes[i], chord.notes[i]);
+        }
+
+        [TestMethod]
+        public void ComplexChord()
+        {
+            var expectedNotes = new List<Note>()
+            {
+                new Note(Note.Value.F3, Note.Length.Quarter),
+                new Note(Note.Value.A3, Note.Length.Quarter)
+            };
+
+            var tune = Tune.Load("[F,2 A,2]");
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+
+            Assert.AreEqual(1, voice.items.Count);
+
+            var chord = voice.items[0] as ChordItem;
+            Assert.IsNotNull(chord);
             Assert.AreEqual(expectedNotes.Count, chord.notes.Length);
 
             for (int i = 0; i < expectedNotes.Count; i++)

@@ -157,6 +157,9 @@ namespace ABC
 
             do
             {
+                if (SkipWhiteSpace())
+                    throw new ParseException($"Unterminated chord at {lineNum}, {index}");
+
                 if (!Elements.IsStartOfNoteStream(currentLine[index]))
                     throw new ParseException($"Invalid character in chord at {lineNum}, {index}");
 
