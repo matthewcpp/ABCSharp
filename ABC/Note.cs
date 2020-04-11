@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ABC
 {
-    public class Note
+    public class Note : IComparable<Note>
     {
         public Value value { get; set; }
         public Accidental accidental { get; set; }
@@ -119,6 +119,11 @@ namespace ABC
         public override string ToString()
         {
             return $"{value.ToString()}, {accidental.ToString()}, {length.ToString()}";
+        }
+
+        public int CompareTo(Note other)
+        {
+            return value.CompareTo(other.value);
         }
     }
 
