@@ -6,28 +6,19 @@ namespace ABC
 {
     public class Note : IComparable<Note>
     {
-        public Value value { get; set; }
+        public Pitch pitch { get; set; }
         public Accidental accidental { get; set; }
 
         public Length length { get; set; }
 
-        public Note(Value v = Value.C4, Length l = Length.Eighth, Accidental acc = Accidental.Unspecified)
+        public Note(Pitch pitch = Pitch.C4, Length length = Length.Eighth, Accidental accidental = Accidental.Unspecified)
         {
-            value = v;
-            length = l;
-            accidental = acc;
+            this.pitch = pitch;
+            this.length = length;
+            this.accidental = accidental;
         }
 
-        public enum Length
-        {
-            Whole = 1,
-            Half = 2,
-            Quarter = 4,
-            Eighth = 8,
-            Sixteenth = 16
-        }
-
-        public enum Value
+        public enum Pitch
         {
             A0,
             B0,
@@ -102,7 +93,7 @@ namespace ABC
         public override bool Equals(object obj)
         {
             return obj is Note note &&
-                   value == note.value &&
+                   pitch == note.pitch &&
                    accidental == note.accidental &&
                    length == note.length;
         }
@@ -110,7 +101,7 @@ namespace ABC
         public override int GetHashCode()
         {
             var hashCode = 838805952;
-            hashCode = hashCode * -1521134295 + value.GetHashCode();
+            hashCode = hashCode * -1521134295 + pitch.GetHashCode();
             hashCode = hashCode * -1521134295 + accidental.GetHashCode();
             hashCode = hashCode * -1521134295 + length.GetHashCode();
             return hashCode;
@@ -118,12 +109,12 @@ namespace ABC
 
         public override string ToString()
         {
-            return $"{value.ToString()}, {accidental.ToString()}, {length.ToString()}";
+            return $"{pitch.ToString()}, {accidental.ToString()}, {length.ToString()}";
         }
 
         public int CompareTo(Note other)
         {
-            return value.CompareTo(other.value);
+            return pitch.CompareTo(other.pitch);
         }
     }
 

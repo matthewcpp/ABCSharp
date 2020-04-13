@@ -16,9 +16,9 @@ namespace TestABC
         {
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Value.C4),
-                new Note(Note.Value.E4),
-                new Note(Note.Value.G4)
+                new Note(Note.Pitch.C4),
+                new Note(Note.Pitch.E4),
+                new Note(Note.Pitch.G4)
             };
 
             var tune = Tune.Load("[CEG]");
@@ -42,8 +42,8 @@ namespace TestABC
         {
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Value.F3, Note.Length.Quarter),
-                new Note(Note.Value.A3, Note.Length.Quarter)
+                new Note(Note.Pitch.F3, Length.Quarter),
+                new Note(Note.Pitch.A3, Length.Quarter)
             };
 
             var tune = Tune.Load("[F,2 A,2]");
