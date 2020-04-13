@@ -20,9 +20,9 @@ namespace TestABC
                 "L: 1", "L: 1/1", "L:1/2", "L:1/4", "L:1/8", "L:1/16"
             };
 
-            var expectedUnitLengths = new List<Note.Length>()
+            var expectedUnitLengths = new List<Length>()
             {
-                Note.Length.Whole, Note.Length.Whole, Note.Length.Half, Note.Length.Quarter, Note.Length.Eighth, Note.Length.Sixteenth
+                Length.Whole, Length.Whole, Length.Half, Length.Quarter, Length.Eighth, Length.Sixteenth
             };
             
             Assert.AreEqual(expectedUnitLengths.Count, lengthValues.Count);
@@ -65,9 +65,9 @@ namespace TestABC
             C [L:1/4] C [L:1/1] C [L:1/8] C
             ";
 
-            var expectedNoteLengths = new List<Note.Length>()
+            var expectedNoteLengths = new List<Length>()
             {
-                Note.Length.Half, Note.Length.Quarter, Note.Length.Whole, Note.Length.Eighth
+                Length.Half, Length.Quarter, Length.Whole, Length.Eighth
             };
 
             var tune = Tune.Load(abc);

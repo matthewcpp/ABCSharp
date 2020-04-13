@@ -17,9 +17,9 @@ namespace TestABC
         {
             var abc = "[L:1/4] C C2 C4";
 
-            var expectedNoteLengths = new List<Note.Length>()
+            var expectedNoteLengths = new List<Length>()
             {
-                Note.Length.Quarter, Note.Length.Half, Note.Length.Whole,
+                Length.Quarter, Length.Half, Length.Whole,
             };
 
             var tune = Tune.Load(abc);
@@ -44,10 +44,10 @@ namespace TestABC
                 [L:1] C C/2 C/4 C/8 C/16
                 [L:1/2] C/2 C/4 C/8";
 
-            var expectedNoteLengths = new List<Note.Length>()
+            var expectedNoteLengths = new List<Length>()
             {
-                Note.Length.Whole, Note.Length.Half, Note.Length.Quarter, Note.Length.Eighth, Note.Length.Sixteenth,
-                Note.Length.Quarter, Note.Length.Eighth, Note.Length.Sixteenth
+                Length.Whole, Length.Half, Length.Quarter, Length.Eighth, Length.Sixteenth,
+                Length.Quarter, Length.Eighth, Length.Sixteenth
             };
 
             var tune = Tune.Load(abc);
@@ -72,10 +72,10 @@ namespace TestABC
                 [L:1] C C/ C// C/// C////
                 [L:1/2] C/ C// C///";
 
-            var expectedNoteLengths = new List<Note.Length>()
+            var expectedNoteLengths = new List<Length>()
             {
-                Note.Length.Whole, Note.Length.Half, Note.Length.Quarter, Note.Length.Eighth, Note.Length.Sixteenth,
-                Note.Length.Quarter, Note.Length.Eighth, Note.Length.Sixteenth
+                Length.Whole, Length.Half, Length.Quarter, Length.Eighth, Length.Sixteenth,
+                Length.Quarter, Length.Eighth, Length.Sixteenth
             };
 
             var tune = Tune.Load(abc);

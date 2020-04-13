@@ -13,7 +13,7 @@ namespace ABC
 
         private Voice voice;
 
-        private Note.Length unitNoteLength = Note.Length.Eighth;
+        private Length unitNoteLength = Length.Eighth;
         private string timeSignature;
 
         StreamReader reader;
@@ -224,7 +224,7 @@ namespace ABC
             return note;
         }
 
-        Note.Length ParseNoteLengthModifier()
+        Length ParseNoteLengthModifier()
         {
             // length modifier will be either '/*' or '/N'
             ReadUntil((char c) => { return !char.IsDigit(c) && c != '/'; }, out string lengthMod);
@@ -260,8 +260,8 @@ namespace ABC
             }
 
             // ensure that final calculated value is a supported enumeration value
-            if (Enum.IsDefined(typeof(Note.Length), lengthValue))
-                return (Note.Length)Enum.ToObject(typeof(Note.Length), lengthValue);
+            if (Enum.IsDefined(typeof(Length), lengthValue))
+                return (Length)Enum.ToObject(typeof(Length), lengthValue);
             else
                 throw new ParseException($"Note length modifier resulted in invalid note length  at {lineNum},{index}");
         }
@@ -321,7 +321,7 @@ namespace ABC
                 throw new ParseException($"Unterminated Note Length field at {lineNum}, {index}");
 
             var lengthInfo = currentLine.Substring(index).TrimEnd();
-            if (!Elements.noteLengths.TryGetValue(lengthInfo, out Note.Length length))
+            if (!Elements.noteLengths.TryGetValue(lengthInfo, out Length length))
                 throw new ParseException($"Unrecognized note length: {lengthInfo} at {lineNum}, {index - lengthInfo.Length}");
 
             unitNoteLength = length;

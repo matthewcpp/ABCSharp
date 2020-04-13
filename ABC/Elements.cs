@@ -22,10 +22,10 @@ namespace ABC
             { ',', -7 }, { '\'', 7 }
         };
 
-        public static Dictionary<string, Note.Length> noteLengths = new Dictionary<string, Note.Length>()
+        public static Dictionary<string, Length> noteLengths = new Dictionary<string, Length>()
         {
-            {"1", Note.Length.Whole}, {"1/1", Note.Length.Whole}, {"1/2", Note.Length.Half},
-            {"1/4", Note.Length.Quarter}, {"1/8", Note.Length.Eighth}, {"1/16", Note.Length.Sixteenth}
+            {"1", Length.Whole}, {"1/1", Length.Whole}, {"1/2", Length.Half},
+            {"1/4", Length.Quarter}, {"1/8", Length.Eighth}, {"1/16", Length.Sixteenth}
         };
 
         public static bool IsStartOfNoteStream(int val)
