@@ -191,7 +191,7 @@ namespace ABC
                 throw new ParseException("Invalid note specification");
 
             // start with Middle C aka 'C'
-            int noteValue = (int) Note.Value.C4;
+            int noteValue = (int) Note.Pitch.C4;
 
             try
             {
@@ -215,10 +215,10 @@ namespace ABC
             }
 
             // ensure final note value is valid
-            if (noteValue < (int)Note.Value.A0 || noteValue > (int)Note.Value.C8)
+            if (noteValue < (int)Note.Pitch.A0 || noteValue > (int)Note.Pitch.C8)
                 throw new ParseException("Invalid note value");
 
-            note.value = (Note.Value)noteValue;
+            note.pitch = (Note.Pitch)noteValue;
             note.length = ParseNoteLengthModifier();
 
             return note;

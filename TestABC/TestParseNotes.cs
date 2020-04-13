@@ -19,9 +19,9 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Value.C2), new Note(Note.Value.C3), 
-                new Note(Note.Value.C4), new Note(Note.Value.C5), 
-                new Note(Note.Value.C6), new Note(Note.Value.C7)
+                new Note(Note.Pitch.C2), new Note(Note.Pitch.C3), 
+                new Note(Note.Pitch.C4), new Note(Note.Pitch.C5), 
+                new Note(Note.Pitch.C6), new Note(Note.Pitch.C7)
             };
             
             var tune = Tune.Load(notes);
@@ -49,10 +49,10 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Value.C4, Note.Length.Eighth, Note.Accidental.Unspecified),
-                new Note(Note.Value.C4, Note.Length.Eighth, Note.Accidental.Sharp),
-                new Note(Note.Value.C4, Note.Length.Eighth, Note.Accidental.Flat),
-                new Note(Note.Value.C4, Note.Length.Eighth, Note.Accidental.Natural)
+                new Note(Note.Pitch.C4, Note.Length.Eighth, Note.Accidental.Unspecified),
+                new Note(Note.Pitch.C4, Note.Length.Eighth, Note.Accidental.Sharp),
+                new Note(Note.Pitch.C4, Note.Length.Eighth, Note.Accidental.Flat),
+                new Note(Note.Pitch.C4, Note.Length.Eighth, Note.Accidental.Natural)
             };
 
             Assert.AreEqual(notes.Count, expectedNotes.Count);
@@ -85,9 +85,9 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Value.A5, Note.Length.Eighth, Note.Accidental.Flat),
-                new Note(Note.Value.C4, Note.Length.Eighth, Note.Accidental.Sharp),
-                new Note(Note.Value.D4, Note.Length.Eighth, Note.Accidental.Unspecified)
+                new Note(Note.Pitch.A5, Note.Length.Eighth, Note.Accidental.Flat),
+                new Note(Note.Pitch.C4, Note.Length.Eighth, Note.Accidental.Sharp),
+                new Note(Note.Pitch.D4, Note.Length.Eighth, Note.Accidental.Unspecified)
             };
 
             foreach (var noteStr in notes)
