@@ -144,8 +144,7 @@ namespace ABC
                 else if (Elements.rests.Contains(currentLine[index]))
                 {
                     EnsureVoice();
-                    var rest = ReadRest();
-                    voice.items.Add(new RestItem(rest));
+                    ReadRest();
                 }
                 else
                 {
@@ -184,14 +183,40 @@ namespace ABC
             voice.items.Add(new ChordItem(notes));
         }
 
-        Rest ReadRest()
+        void ReadRest()
         {
-            var rest = new Rest();
-            rest.isVisible = currentLine[index] == 'z';
-            index += 1;
-            rest.length = ParseNoteLengthModifier();
+            
+            if (char.IsLower(currentLine[index]))
+            {
+                var rest = new Rest();
+                rest.isVisible = currentLine[index] == 'z';
+                index += 1;
+                rest.length = ParseNoteLengthModifier();
+                voice.items.Add(new RestItem(rest));
+            }
+            else
+            {
+                var rest = new MultiMeasureRest();
+                rest.isVisible = currentLine[index] == 'Z';
+                index += 1;
+                ReadUntil((char c) => { return !char.IsDigit(c); }, out string measureCountStr);
 
-            return rest;
+                if (measureCountStr.Length > 0)
+                {
+                    int measureCount = 0;
+                    if (int.TryParse(measureCountStr, out measureCount))
+                        rest.count = measureCount;
+                    else
+                        throw new ParseException($"Unable to parse multi measure rest count at {lineNum}, {index - measureCountStr.Length}");
+
+                }
+                else
+                {
+                    rest.count = 1;
+                }    
+                
+                voice.items.Add(new MultiMeasureRestItem(rest));
+            }
         }
 
         Note ReadNote()

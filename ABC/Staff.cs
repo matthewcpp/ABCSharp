@@ -11,6 +11,7 @@ namespace ABC
         {
             Bar,
             Chord,
+            MultiMeasureRest,
             Note,
             Rest,
             TimeSignature
@@ -69,6 +70,16 @@ namespace ABC
         public Rest rest { get; }
 
         public RestItem(Rest rest) : base(Type.Rest)
+        {
+            this.rest = rest;
+        }
+    }
+
+    public class MultiMeasureRestItem : Item
+    {
+        public MultiMeasureRest rest { get; }
+
+        public MultiMeasureRestItem(MultiMeasureRest rest) : base(Type.MultiMeasureRest)
         {
             this.rest = rest;
         }

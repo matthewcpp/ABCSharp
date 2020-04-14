@@ -30,7 +30,7 @@ namespace ABC
         
         public static readonly HashSet<int> rests = new HashSet<int>()
         {
-            'z', 'x'
+            'z', 'Z', 'x', 'X'
         };
 
         public static bool IsStartOfNoteStream(int val)
