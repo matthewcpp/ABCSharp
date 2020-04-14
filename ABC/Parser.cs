@@ -141,6 +141,12 @@ namespace ABC
                     var note = ReadNote();
                     voice.items.Add(new NoteItem(note));
                 }
+                else if (Elements.rests.Contains(currentLine[index]))
+                {
+                    EnsureVoice();
+                    var rest = ReadRest();
+                    voice.items.Add(new RestItem(rest));
+                }
                 else
                 {
                     throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
@@ -176,6 +182,16 @@ namespace ABC
                 throw new ParseException($"Encountered empty chord at {lineNum}, {index}");
 
             voice.items.Add(new ChordItem(notes));
+        }
+
+        Rest ReadRest()
+        {
+            var rest = new Rest();
+            rest.isVisible = currentLine[index] == 'z';
+            index += 1;
+            rest.length = ParseNoteLengthModifier();
+
+            return rest;
         }
 
         Note ReadNote()

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ABC
 {
-    public class Note : IComparable<Note>
+    public struct Note : IComparable<Note>
     {
         public Pitch pitch { get; set; }
         public Accidental accidental { get; set; }
