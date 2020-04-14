@@ -6,6 +6,8 @@ This library parses a (very) minimal set of [ABC Music Notation](http://abcnotat
 
 Supported Features:
 - Notes: Accidentals, Octatve Modifiers, Chords, Length Modifier
+- Information Fields: Unit note Length, Time Signature, Voice
+- Rests (individual and multi-measure)
 - Bar Line
 - Multiple Voices: clef(treble, bass) and name modifiers
 

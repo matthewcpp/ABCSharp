@@ -141,6 +141,11 @@ namespace ABC
                     var note = ReadNote();
                     voice.items.Add(new NoteItem(note));
                 }
+                else if (Elements.rests.Contains(currentLine[index]))
+                {
+                    EnsureVoice();
+                    ReadRest();
+                }
                 else
                 {
                     throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
@@ -176,6 +181,42 @@ namespace ABC
                 throw new ParseException($"Encountered empty chord at {lineNum}, {index}");
 
             voice.items.Add(new ChordItem(notes));
+        }
+
+        void ReadRest()
+        {
+            
+            if (char.IsLower(currentLine[index]))
+            {
+                var rest = new Rest();
+                rest.isVisible = currentLine[index] == 'z';
+                index += 1;
+                rest.length = ParseNoteLengthModifier();
+                voice.items.Add(new RestItem(rest));
+            }
+            else
+            {
+                var rest = new MultiMeasureRest();
+                rest.isVisible = currentLine[index] == 'Z';
+                index += 1;
+                ReadUntil((char c) => { return !char.IsDigit(c); }, out string measureCountStr);
+
+                if (measureCountStr.Length > 0)
+                {
+                    int measureCount = 0;
+                    if (int.TryParse(measureCountStr, out measureCount))
+                        rest.count = measureCount;
+                    else
+                        throw new ParseException($"Unable to parse multi measure rest count at {lineNum}, {index - measureCountStr.Length}");
+
+                }
+                else
+                {
+                    rest.count = 1;
+                }    
+                
+                voice.items.Add(new MultiMeasureRestItem(rest));
+            }
         }
 
         Note ReadNote()

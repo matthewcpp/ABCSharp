@@ -9,9 +9,11 @@ namespace ABC
     {
         public enum Type
         {
-            Note,
-            Chord,
             Bar,
+            Chord,
+            MultiMeasureRest,
+            Note,
+            Rest,
             TimeSignature
         }
 
@@ -35,7 +37,7 @@ namespace ABC
 
     public class ChordItem : Item
     {
-        public Note[] notes { get; private set; }
+        public Note[] notes { get;}
 
         public ChordItem(List<Note> ns) : base(Type.Chord)
         {
@@ -61,6 +63,25 @@ namespace ABC
         {
             timeSignature = ts;
         }
-        
+    }
+
+    public class RestItem : Item
+    {
+        public Rest rest { get; }
+
+        public RestItem(Rest rest) : base(Type.Rest)
+        {
+            this.rest = rest;
+        }
+    }
+
+    public class MultiMeasureRestItem : Item
+    {
+        public MultiMeasureRest rest { get; }
+
+        public MultiMeasureRestItem(MultiMeasureRest rest) : base(Type.MultiMeasureRest)
+        {
+            this.rest = rest;
+        }
     }
 }
