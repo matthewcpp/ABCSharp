@@ -22,6 +22,8 @@ namespace ABC
         int index = 0;
         string currentLine;
         private bool parsingTuneBody = false;
+        bool beam = false;
+        int beamId = 0;
 
         public Tune Parse(Stream stream)
         {
@@ -33,6 +35,7 @@ namespace ABC
                 currentLine = reader.ReadLine();
                 lineNum += 1;
                 index = 0;
+                beam = false;
 
                 if (SkipWhiteSpace()) continue;
 
@@ -61,8 +64,12 @@ namespace ABC
 
         bool SkipWhiteSpace()
         {
+            int startIndex = index;
+
             while (index < currentLine.Length && Char.IsWhiteSpace(currentLine[index]))
                 index += 1;
+
+            if (index != startIndex) beam = false;
 
             return index == currentLine.Length;
         }
@@ -128,28 +135,65 @@ namespace ABC
                         ParseTuneBodyInformationField();
                     else
                         throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
+
+                    beam = false;
                 }
                 else if (currentLine[index] == '|')
                 {
                     EnsureVoice();
                     voice.items.Add(new BarItem(new Bar(Bar.Type.Line)));
                     index += 1;
+                    beam = false;
                 }
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {
                     EnsureVoice();
                     var note = ReadNote();
-                    voice.items.Add(new NoteItem(note));
+                    var noteItem = new NoteItem(note);
+                    UpdateNoteBeam(noteItem);
+
+                    voice.items.Add(noteItem);
                 }
                 else if (Elements.rests.Contains(currentLine[index]))
                 {
                     EnsureVoice();
                     ReadRest();
+                    beam = false;
                 }
                 else
                 {
                     throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
                 }
+            }
+        }
+
+        void UpdateNoteBeam(NoteItem noteItem)
+        {
+            if (noteItem.note.length >= Length.Eighth)
+            {
+                if (!beam) // potentially start a new beam
+                {
+                    beam = true;
+                    beamId += 1;
+                }
+                else
+                {
+                    // if the previous note has the same value as this one then we can beam it
+                    var previousNoteItem = voice.items[voice.items.Count - 1] as NoteItem;
+                    if (previousNoteItem.note.length == noteItem.note.length)
+                    {
+                        previousNoteItem.beam = beamId;
+                        noteItem.beam = beamId;
+                    }
+                    else
+                    {
+                        beam = false;
+                    }
+                }
+            }
+            else
+            {
+                beam = false;
             }
         }
 
