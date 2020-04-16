@@ -20,10 +20,10 @@ namespace TestABC
             var voice = tune.voices[0];
 
             Assert.AreEqual(1, voice.items.Count);
-            Assert.AreEqual(Item.Type.Bar, voice.items[0].type);
-            var barItem = voice.items[0] as BarItem;
+            var barItem = voice.items[0] as Bar;
+            Assert.IsNotNull(barItem);
 
-            Assert.AreEqual(Bar.Type.Line, barItem.bar.type);
+            Assert.AreEqual(Bar.Type.Line, barItem.type);
         }
     }
 }

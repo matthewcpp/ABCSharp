@@ -25,16 +25,6 @@ namespace ABC
         }
     }
 
-    public class BarItem : Item
-    {
-        public Bar bar {get;}
-
-        public BarItem(Bar b) : base(Type.Bar)
-        {
-            bar = b;
-        }
-    }
-
     public class TimeSignatureItem : Item
     {
         public string timeSignature { get; }

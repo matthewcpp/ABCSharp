@@ -141,7 +141,7 @@ namespace ABC
                 else if (currentLine[index] == '|')
                 {
                     EnsureVoice();
-                    voice.items.Add(new BarItem(new Bar(Bar.Type.Line)));
+                    voice.items.Add(new Bar(Bar.Type.Line));
                     index += 1;
                     beam = false;
                 }
