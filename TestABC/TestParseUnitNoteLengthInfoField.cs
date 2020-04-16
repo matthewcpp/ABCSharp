@@ -36,10 +36,10 @@ namespace TestABC
                 var voice = tune.voices[0];
                 
                 Assert.AreEqual(1, voice.items.Count);
-                Assert.AreEqual(Item.Type.Note, voice.items[0].type);
-                var noteItem = voice.items[0] as NoteItem;
+                var noteItem = voice.items[0] as Note;
+                Assert.IsNotNull(noteItem);
                 
-                Assert.AreEqual(expectedUnitLengths[i], noteItem.note.length);
+                Assert.AreEqual(expectedUnitLengths[i], noteItem.length);
             }
         }
 
@@ -79,9 +79,9 @@ namespace TestABC
 
             for (int i = 0; i < expectedNoteLengths.Count; i++)
             {
-                var noteItem = voice.items[i] as NoteItem;
+                var noteItem = voice.items[i] as Note;
                 Assert.IsNotNull(noteItem);
-                Assert.AreEqual(expectedNoteLengths[i], noteItem.note.length);
+                Assert.AreEqual(expectedNoteLengths[i], noteItem.length);
             }
         }
     }

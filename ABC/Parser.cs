@@ -149,10 +149,9 @@ namespace ABC
                 {
                     EnsureVoice();
                     var note = ReadNote();
-                    var noteItem = new NoteItem(note);
-                    UpdateNoteBeam(noteItem);
+                    UpdateNoteBeam(note);
 
-                    voice.items.Add(noteItem);
+                    voice.items.Add(note);
                 }
                 else if (Elements.rests.Contains(currentLine[index]))
                 {
@@ -167,9 +166,9 @@ namespace ABC
             }
         }
 
-        void UpdateNoteBeam(NoteItem noteItem)
+        void UpdateNoteBeam(Note noteItem)
         {
-            if (noteItem.note.length <= Length.Eighth)
+            if (noteItem.length <= Length.Eighth)
             {
                 if (!beam) // potentially start a new beam
                 {
@@ -179,8 +178,8 @@ namespace ABC
                 else
                 {
                     // if the previous note has the same value as this one then we can beam it
-                    var previousNoteItem = voice.items[voice.items.Count - 1] as NoteItem;
-                    if (previousNoteItem.note.length == noteItem.note.length)
+                    var previousNoteItem = voice.items[voice.items.Count - 1] as Note;
+                    if (previousNoteItem.length == noteItem.length)
                     {
                         previousNoteItem.beam = beamId;
                         noteItem.beam = beamId;

@@ -25,19 +25,6 @@ namespace ABC
         }
     }
 
-    public class NoteItem : Item
-    {
-        public Note note { get; }
-
-        /// <summary> Indicates the Id of the beam this note is a part of.  A value of 0 indicates that this note item is not part of any beam.</summary>
-        public int beam { get; set; } = 0;
-
-        public NoteItem(Note n) : base(Type.Note)
-        {
-            note = n;
-        }
-    }
-
     public class ChordItem : Item
     {
         public Note[] notes { get;}

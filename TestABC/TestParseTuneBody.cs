@@ -14,7 +14,7 @@ namespace TestABC
         [TestMethod]
         public void Body()
         {
-            var expectedTypes = new List<NoteItem.Type>()
+            var expectedTypes = new List<Item.Type>()
             {
                 Item.Type.Note, Item.Type.Chord, Item.Type.Note, Item.Type.Chord, Item.Type.Bar, Item.Type.Note
             };

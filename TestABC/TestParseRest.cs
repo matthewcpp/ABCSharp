@@ -85,7 +85,7 @@ namespace TestABC
                 if (expectedTypes[i] == Item.Type.Rest)
                     Assert.IsNotNull(voice.items[i] as RestItem);
                 else
-                    Assert.IsNotNull(voice.items[i] as NoteItem);
+                    Assert.IsNotNull(voice.items[i] as Note);
             }
         }
 

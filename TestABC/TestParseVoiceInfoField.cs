@@ -79,12 +79,12 @@ namespace TestABC
             Assert.AreEqual(2, tune.voices.Count);
 
             Assert.AreEqual(Clef.Treble, tune.voices[0].clef);
-            NoteItem noteItem = tune.voices[0].items[0] as NoteItem;
-            Assert.AreEqual(Pitch.C4, noteItem.note.pitch);
+            var noteItem = tune.voices[0].items[0] as Note;
+            Assert.AreEqual(Pitch.C4, noteItem.pitch);
 
             Assert.AreEqual(Clef.Bass, tune.voices[1].clef);
-            noteItem = tune.voices[1].items[0] as NoteItem;
-            Assert.AreEqual(Pitch.D4, noteItem.note.pitch);
+            noteItem = tune.voices[1].items[0] as Note;
+            Assert.AreEqual(Pitch.D4, noteItem.pitch);
         }
 
         [TestMethod]
@@ -101,12 +101,14 @@ namespace TestABC
             Assert.AreEqual(2, tune.voices.Count);
 
             Assert.AreEqual(Clef.Treble, tune.voices[0].clef);
-            NoteItem noteItem = tune.voices[0].items[0] as NoteItem;
-            Assert.AreEqual(Pitch.C4, noteItem.note.pitch);
+            var noteItem = tune.voices[0].items[0] as Note;
+            Assert.IsNotNull(noteItem);
+            Assert.AreEqual(Pitch.C4, noteItem.pitch);
 
             Assert.AreEqual(Clef.Bass, tune.voices[1].clef);
-            noteItem = tune.voices[1].items[0] as NoteItem;
-            Assert.AreEqual(Pitch.D4, noteItem.note.pitch);
+            noteItem = tune.voices[1].items[0] as Note;
+            Assert.IsNotNull(noteItem);
+            Assert.AreEqual(Pitch.D4, noteItem.pitch);
         }
     }
 }
