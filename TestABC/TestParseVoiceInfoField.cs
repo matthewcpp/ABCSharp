@@ -80,11 +80,11 @@ namespace TestABC
 
             Assert.AreEqual(Clef.Treble, tune.voices[0].clef);
             NoteItem noteItem = tune.voices[0].items[0] as NoteItem;
-            Assert.AreEqual(Note.Pitch.C4, noteItem.note.pitch);
+            Assert.AreEqual(Pitch.C4, noteItem.note.pitch);
 
             Assert.AreEqual(Clef.Bass, tune.voices[1].clef);
             noteItem = tune.voices[1].items[0] as NoteItem;
-            Assert.AreEqual(Note.Pitch.D4, noteItem.note.pitch);
+            Assert.AreEqual(Pitch.D4, noteItem.note.pitch);
         }
 
         [TestMethod]
@@ -102,11 +102,11 @@ namespace TestABC
 
             Assert.AreEqual(Clef.Treble, tune.voices[0].clef);
             NoteItem noteItem = tune.voices[0].items[0] as NoteItem;
-            Assert.AreEqual(Note.Pitch.C4, noteItem.note.pitch);
+            Assert.AreEqual(Pitch.C4, noteItem.note.pitch);
 
             Assert.AreEqual(Clef.Bass, tune.voices[1].clef);
             noteItem = tune.voices[1].items[0] as NoteItem;
-            Assert.AreEqual(Note.Pitch.D4, noteItem.note.pitch);
+            Assert.AreEqual(Pitch.D4, noteItem.note.pitch);
         }
     }
 }
