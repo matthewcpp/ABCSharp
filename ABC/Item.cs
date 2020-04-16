@@ -55,16 +55,6 @@ namespace ABC
         }
     }
 
-    public class RestItem : Item
-    {
-        public Rest rest { get; }
-
-        public RestItem(Rest rest) : base(Type.Rest)
-        {
-            this.rest = rest;
-        }
-    }
-
     public class MultiMeasureRestItem : Item
     {
         public MultiMeasureRest rest { get; }

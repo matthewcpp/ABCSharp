@@ -235,7 +235,7 @@ namespace ABC
                 rest.isVisible = currentLine[index] == 'z';
                 index += 1;
                 ParseLengthValues(rest);
-                voice.items.Add(new RestItem(rest));
+                voice.items.Add(rest);
             }
             else
             {
