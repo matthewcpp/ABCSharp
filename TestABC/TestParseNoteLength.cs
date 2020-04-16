@@ -94,6 +94,36 @@ namespace TestABC
         }
 
         [TestMethod]
+        public void DottedNotes()
+        {
+            var lengthValues = new List<string>()
+            {
+                "1", "1/1", "1/2", "1/4", "1/8", "1/16"
+            };
+
+            var expectedUnitLengths = new List<Length>()
+            {
+                Length.Whole, Length.Whole, Length.Half, Length.Quarter, Length.Eighth, Length.Sixteenth
+            };
+
+            for (int i = 0; i < expectedUnitLengths.Count; i++)
+            {
+                var abc = $"L:{lengthValues[i]}\nC3/2";
+
+                var tune = Tune.Load(abc);
+                
+                Assert.AreEqual(1, tune.voices.Count);
+                var voice = tune.voices[0];
+
+                Assert.AreEqual(1, voice.items.Count);
+                var noteItem = voice.items[0] as NoteItem;
+                
+                Assert.AreEqual(expectedUnitLengths[i], noteItem.note.length);
+                Assert.AreEqual(1, noteItem.note.dotCount);
+            }
+        }
+
+        [TestMethod]
         public void InvalidNoteLengths()
         {
             var notes = new List<string>()

@@ -169,7 +169,7 @@ namespace ABC
 
         void UpdateNoteBeam(NoteItem noteItem)
         {
-            if (noteItem.note.length >= Length.Eighth)
+            if (noteItem.note.length <= Length.Eighth)
             {
                 if (!beam) // potentially start a new beam
                 {
@@ -235,7 +235,7 @@ namespace ABC
                 var rest = new Rest();
                 rest.isVisible = currentLine[index] == 'z';
                 index += 1;
-                rest.length = ParseNoteLengthModifier();
+                ParseLengthValues(rest);
                 voice.items.Add(new RestItem(rest));
             }
             else
@@ -304,51 +304,37 @@ namespace ABC
                 throw new ParseException("Invalid note value");
 
             note.pitch = (Note.Pitch)noteValue;
-            note.length = ParseNoteLengthModifier();
+            ParseLengthValues(note);
 
             return note;
         }
 
-        Length ParseNoteLengthModifier()
+        void ParseLengthValues(Duration duration)
         {
-            // length modifier will be either '/*' or '/N'
+            Length l;
+            int dots;
+            ParseLength(out l, out dots);
+            duration.length = l;
+            duration.dotCount = dots;
+        }
+
+        void ParseLength(out Length length, out int dots)
+        {
+            // length modifier will be either '/*' or '\d*/N'
             ReadUntil((char c) => { return !char.IsDigit(c) && c != '/'; }, out string lengthMod);
 
-            if (lengthMod.Length == 0) // no modifier specified
-                return unitNoteLength;
-
-            int lengthValue = (int)unitNoteLength;
-
-            if (char.IsDigit(lengthMod[0]))  // ex: A2
+            float noteDuration = ParserUtil.lengthDurations[unitNoteLength];
+            try
             {
-                if (!int.TryParse(lengthMod, out int value))
-                    throw new ParseException($"Invalid note length modifier {lengthMod} at {lineNum},{index}");
-
-                lengthValue = (int)unitNoteLength / value;
+                noteDuration *= ParserUtil.ParseDurationModifierString(lengthMod);
             }
-            else if (lengthMod.Length > 1 && char.IsDigit(lengthMod[1])) //ex: A/2  
+            catch (FormatException)
             {
-                if (!int.TryParse(lengthMod.Substring(1), out int value))
-                    throw new ParseException($"Invalid note length modifier {lengthMod} at {lineNum},{index}");
-
-                lengthValue = (int)unitNoteLength * value;
-            }
-            else // ex: A//
-            {
-                for (int i = 0; i < lengthMod.Length; i++) // all characters should be '/'
-                {
-                    if (lengthMod[i] != '/')
-                        throw new ParseException($"Invalid note length modifier {lengthMod} at {lineNum},{index}");
-                }
-
-                lengthValue = (int)unitNoteLength * (1 << lengthMod.Length);
+                throw new ParseException($"Unable to parse length modifier at {lineNum}, {index}");
             }
 
-            // ensure that final calculated value is a supported enumeration value
-            if (Enum.IsDefined(typeof(Length), lengthValue))
-                return (Length)Enum.ToObject(typeof(Length), lengthValue);
-            else
-                throw new ParseException($"Note length modifier resulted in invalid note length  at {lineNum},{index}");
+            if (!ParserUtil.ParseDuration(noteDuration, out length, out dots))
+                throw new ParseException($"Invalid Note duration at {lineNum}, {index}");
         }
 
         void ParseInformationField()
@@ -406,7 +392,7 @@ namespace ABC
                 throw new ParseException($"Unterminated Note Length field at {lineNum}, {index}");
 
             var lengthInfo = currentLine.Substring(index).TrimEnd();
-            if (!Elements.noteLengths.TryGetValue(lengthInfo, out Length length))
+            if (!Elements.lengthStrings.TryGetValue(lengthInfo, out Length length))
                 throw new ParseException($"Unrecognized note length: {lengthInfo} at {lineNum}, {index - lengthInfo.Length}");
 
             unitNoteLength = length;

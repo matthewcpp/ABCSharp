@@ -4,18 +4,17 @@ using System.Text;
 
 namespace ABC
 {
-    public struct Note : IComparable<Note>
+    public class Note : Duration, IComparable<Note>
     {
         public Pitch pitch { get; set; }
         public Accidental accidental { get; set; }
 
-        public Length length { get; set; }
-
-        public Note(Pitch pitch = Pitch.C4, Length length = Length.Eighth, Accidental accidental = Accidental.Unspecified)
+        public Note(Pitch pitch = Pitch.C4, Length length = Length.Eighth, Accidental accidental = Accidental.Unspecified, int dotCount = 0)
         {
             this.pitch = pitch;
             this.length = length;
             this.accidental = accidental;
+            this.dotCount = dotCount;
         }
 
         public enum Pitch
