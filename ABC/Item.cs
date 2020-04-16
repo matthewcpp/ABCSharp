@@ -25,16 +25,6 @@ namespace ABC
         }
     }
 
-    public class ChordItem : Item
-    {
-        public Note[] notes { get;}
-
-        public ChordItem(List<Note> ns) : base(Type.Chord)
-        {
-            notes = ns.ToArray();
-        }
-    }
-
     public class BarItem : Item
     {
         public Bar bar {get;}

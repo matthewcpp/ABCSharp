@@ -14,22 +14,20 @@ namespace TestABC
         [TestMethod]
         public void BasicChord()
         {
-            var expectedNotes = new List<Note>()
+            var expectedNotes = new List<Chord.Element>()
             {
-                new Note(Pitch.C4),
-                new Note(Pitch.E4),
-                new Note(Pitch.G4)
+                new Chord.Element(Pitch.C4, Accidental.Unspecified),
+                new Chord.Element(Pitch.E4, Accidental.Unspecified),
+                new Chord.Element(Pitch.G4, Accidental.Unspecified)
             };
 
             var tune = Tune.Load("[CEG]");
 
             Assert.AreEqual(1, tune.voices.Count);
             var voice = tune.voices[0];
-
-            Assert.AreEqual(Clef.Treble, voice.clef);
+            
             Assert.AreEqual(1, voice.items.Count);
-
-            var chord = voice.items[0] as ChordItem;
+            var chord = voice.items[0] as Chord;
             Assert.IsNotNull(chord);
             Assert.AreEqual(expectedNotes.Count, chord.notes.Length);
 
@@ -40,10 +38,10 @@ namespace TestABC
         [TestMethod]
         public void ComplexChord()
         {
-            var expectedNotes = new List<Note>()
+            var expectedNotes = new List<Chord.Element>()
             {
-                new Note(Pitch.F3, Length.Quarter),
-                new Note(Pitch.A3, Length.Quarter)
+                new Chord.Element(Pitch.F3, Accidental.Unspecified),
+                new Chord.Element(Pitch.A3, Accidental.Unspecified)
             };
 
             var tune = Tune.Load("[F,2 A,2]");
@@ -53,12 +51,37 @@ namespace TestABC
 
             Assert.AreEqual(1, voice.items.Count);
 
-            var chord = voice.items[0] as ChordItem;
+            var chord = voice.items[0] as Chord;
             Assert.IsNotNull(chord);
             Assert.AreEqual(expectedNotes.Count, chord.notes.Length);
 
             for (int i = 0; i < expectedNotes.Count; i++)
                 Assert.AreEqual(expectedNotes[i], chord.notes[i]);
+        }
+
+        [TestMethod]
+        public void ChordLength()
+        {
+            var abc = "L:1/4\n[C2E2G2] [C2E2G2]2 [C/2C2C2]";
+
+            var expectedLengths = new List<Length>()
+            {
+                Length.Half, Length.Whole, Length.Eighth
+            };
+
+            var tune = Tune.Load(abc);
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+            
+            Assert.AreEqual(expectedLengths.Count, voice.items.Count);
+
+            for (int i = 0; i < expectedLengths.Count; i++)
+            {
+                var chord = voice.items[i] as Chord;
+                Assert.IsNotNull(chord);
+                Assert.AreEqual(expectedLengths[i], chord.length);
+            }
         }
 
         [TestMethod]

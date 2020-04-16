@@ -148,7 +148,7 @@ namespace ABC
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {
                     EnsureVoice();
-                    var note = ReadNote();
+                    var note = ReadFullNote();
                     UpdateNoteBeam(note);
 
                     voice.items.Add(note);
@@ -199,9 +199,10 @@ namespace ABC
         void ParseChord()
         {
             EnsureVoice();
-            
+
             index += 1;
             var notes = new List<Note>();
+            float noteDurationModifier = 1.0f;
 
             do
             {
@@ -210,8 +211,13 @@ namespace ABC
 
                 if (!Elements.IsStartOfNoteStream(currentLine[index]))
                     throw new ParseException($"Invalid character in chord at {lineNum}, {index}");
-
-                notes.Add(ReadNote());
+                
+                notes.Add(ReadBaseNote());
+                
+                //only the duration modifier for the first chord will have impact on its overall duration
+                float durationModifier = ReadDurationModifier();
+                if (notes.Count == 1)
+                    noteDurationModifier = durationModifier;
 
                 if (index == currentLine.Length)
                     throw new ParseException($"Unterminated chord at {lineNum}, {index}");
@@ -223,7 +229,20 @@ namespace ABC
             if (notes.Count == 0)
                 throw new ParseException($"Encountered empty chord at {lineNum}, {index}");
 
-            voice.items.Add(new ChordItem(notes));
+            var chord = Chord.FromNotes(notes);
+            float chordDurationModifier = ReadDurationModifier();
+            // spec states that length modifiers inside the chord are multiplied by outside
+            float noteDuration = ParserUtil.lengthDurations[unitNoteLength] * (noteDurationModifier * chordDurationModifier);
+
+            Length chordLength;
+            int dotCount;
+            if (!ParserUtil.ParseDuration(noteDuration, out chordLength, out dotCount))
+                throw new ParseException($"Invalid Note duration at {lineNum}, {index}");
+
+            chord.length = chordLength;
+            chord.dotCount = dotCount;
+
+            voice.items.Add(chord);
         }
 
         void ReadRest()
@@ -262,7 +281,7 @@ namespace ABC
             }
         }
 
-        Note ReadNote()
+        private Note ReadBaseNote()
         {
             var note = new Note();
 
@@ -303,8 +322,14 @@ namespace ABC
                 throw new ParseException("Invalid note value");
 
             note.pitch = (Pitch)noteValue;
-            ParseLengthValues(note);
 
+            return note;
+        }
+
+        Note ReadFullNote()
+        {
+            var note = ReadBaseNote();
+            ParseLengthValues(note);
             return note;
         }
 
@@ -317,21 +342,26 @@ namespace ABC
             duration.dotCount = dots;
         }
 
-        void ParseLength(out Length length, out int dots)
+        float ReadDurationModifier()
         {
             // length modifier will be either '/*' or '\d*/N'
             ReadUntil((char c) => { return !char.IsDigit(c) && c != '/'; }, out string lengthMod);
 
-            float noteDuration = ParserUtil.lengthDurations[unitNoteLength];
             try
             {
-                noteDuration *= ParserUtil.ParseDurationModifierString(lengthMod);
+                return ParserUtil.ParseDurationModifierString(lengthMod);
             }
             catch (FormatException)
             {
                 throw new ParseException($"Unable to parse length modifier at {lineNum}, {index}");
             }
+        }
 
+        void ParseLength(out Length length, out int dots)
+        {
+            float noteDuration = ParserUtil.lengthDurations[unitNoteLength];
+            noteDuration *= ReadDurationModifier();
+            
             if (!ParserUtil.ParseDuration(noteDuration, out length, out dots))
                 throw new ParseException($"Invalid Note duration at {lineNum}, {index}");
         }
