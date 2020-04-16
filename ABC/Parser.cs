@@ -269,7 +269,7 @@ namespace ABC
 
             note.accidental = Elements.GetAccidental(currentLine[index]);
             
-            if (note.accidental != Note.Accidental.Unspecified)
+            if (note.accidental != Accidental.Unspecified)
                 index += 1;
 
             if (index == currentLine.Length)

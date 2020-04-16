@@ -17,14 +17,6 @@ namespace ABC
             this.dotCount = dotCount;
         }
 
-        public enum Accidental
-        {
-            Unspecified,
-            Natural,
-            Sharp,
-            Flat
-        }
-
         public override bool Equals(object obj)
         {
             return obj is Note note &&

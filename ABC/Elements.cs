@@ -12,9 +12,9 @@ namespace ABC
             {'C', 0 }, {'D', 1 }, {'E', 2 }, {'F', 3 }, {'G', 4 }, { 'A', 5 }, {'B', 6 }
         };
 
-        public static readonly Dictionary<int, Note.Accidental> accidentals = new Dictionary<int, Note.Accidental>()
+        public static readonly Dictionary<int, Accidental> accidentals = new Dictionary<int, Accidental>()
         {
-            { '=', Note.Accidental.Natural }, {'^', Note.Accidental.Sharp }, {'_', Note.Accidental.Flat }
+            { '=', Accidental.Natural }, {'^', Accidental.Sharp }, {'_', Accidental.Flat }
         };
 
         public static readonly Dictionary<int, int> octaveModifiers = new Dictionary<int, int>()
@@ -46,9 +46,9 @@ namespace ABC
                 throw new ParseException("Invalid note value");
         }
 
-        public static Note.Accidental GetAccidental(int val)
+        public static Accidental GetAccidental(int val)
         {
-            Note.Accidental accidental = Note.Accidental.Unspecified;
+            Accidental accidental = Accidental.Unspecified;
             accidentals.TryGetValue(val, out accidental);
             return accidental;
         }

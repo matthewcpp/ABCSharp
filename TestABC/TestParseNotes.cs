@@ -49,10 +49,10 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Pitch.C4, Length.Eighth, Note.Accidental.Unspecified),
-                new Note(Pitch.C4, Length.Eighth, Note.Accidental.Sharp),
-                new Note(Pitch.C4, Length.Eighth, Note.Accidental.Flat),
-                new Note(Pitch.C4, Length.Eighth, Note.Accidental.Natural)
+                new Note(Pitch.C4, Length.Eighth, Accidental.Unspecified),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Sharp),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Flat),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Natural)
             };
 
             Assert.AreEqual(notes.Count, expectedNotes.Count);
@@ -85,9 +85,9 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Pitch.A5, Length.Eighth, Note.Accidental.Flat),
-                new Note(Pitch.C4, Length.Eighth, Note.Accidental.Sharp),
-                new Note(Pitch.D4, Length.Eighth, Note.Accidental.Unspecified)
+                new Note(Pitch.A5, Length.Eighth, Accidental.Flat),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Sharp),
+                new Note(Pitch.D4, Length.Eighth, Accidental.Unspecified)
             };
 
             foreach (var noteStr in notes)
