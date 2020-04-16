@@ -21,16 +21,16 @@ namespace ABC
         {
             { ',', -7 }, { '\'', 7 }
         };
-
-        public static readonly Dictionary<string, Length> noteLengths = new Dictionary<string, Length>()
-        {
-            {"1", Length.Whole}, {"1/1", Length.Whole}, {"1/2", Length.Half},
-            {"1/4", Length.Quarter}, {"1/8", Length.Eighth}, {"1/16", Length.Sixteenth}
-        };
         
         public static readonly HashSet<int> rests = new HashSet<int>()
         {
             'z', 'Z', 'x', 'X'
+        };
+        
+        public static readonly Dictionary<string, Length> lengthStrings = new Dictionary<string, Length>()
+        {
+            {"1", Length.Whole}, {"1/1", Length.Whole}, {"1/2", Length.Half},
+            {"1/4", Length.Quarter}, {"1/8", Length.Eighth}, {"1/16", Length.Sixteenth}
         };
 
         public static bool IsStartOfNoteStream(int val)
