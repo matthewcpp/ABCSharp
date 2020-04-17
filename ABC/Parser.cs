@@ -22,6 +22,12 @@ namespace ABC
         int index = 0;
         string currentLine;
         private bool parsingTuneBody = false;
+
+        private enum BrokenRhythm { None, DotHalf, HalfDot }
+
+        private BrokenRhythm brokenRhythm = BrokenRhythm.None;
+        private int brokenRhythmCount = 0;
+
         bool beam = false;
         int beamId = 0;
 
@@ -145,6 +151,11 @@ namespace ABC
                     index += 1;
                     beam = false;
                 }
+                else if (currentLine[index] == '>' || currentLine[index] == '<')
+                {
+                    ParseBrokenRhythm();
+                    continue;
+                }
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {
                     EnsureVoice();
@@ -163,7 +174,58 @@ namespace ABC
                 {
                     throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
                 }
+
+                UpdateBrokenRhythm();
             }
+        }
+
+        void ParseBrokenRhythm()
+        {
+            if (voice == null || voice.items.Count == 0)
+                throw new ParseException($"Illegal broken Rhythm marker at {lineNum}, {index}");
+
+            char symbol = currentLine[index];
+            brokenRhythm = symbol == '>' ? BrokenRhythm.DotHalf : BrokenRhythm.HalfDot;
+            
+            ReadUntil((char ch) => { return ch != symbol;}, out string brokenRhythmStr);
+            brokenRhythmCount = brokenRhythmStr.Length;
+        }
+
+        void UpdateBrokenRhythm()
+        {
+            if (brokenRhythm == BrokenRhythm.None)
+                return;
+            
+            if (voice.items.Count < 2)
+                throw new ParseException($"Unable to apply broken rhythm to item near {lineNum}, {index}");
+
+            var itemA = voice.items[voice.items.Count - 2] as Duration;
+            var itemB = voice.items[voice.items.Count - 1] as Duration;
+            
+            if (itemA == null || itemB == null)
+                throw new ParseException($"Unable to apply broken rhythm to item near {lineNum}, {index}");
+
+            Duration halfItem, dotItem;
+            if (brokenRhythm == BrokenRhythm.DotHalf)
+            {
+                dotItem = itemA;
+                halfItem = itemB;
+            }
+            else
+            {
+                dotItem = itemB;
+                halfItem = itemA;
+            }
+            
+            dotItem.length = unitNoteLength;
+            dotItem.dotCount = brokenRhythmCount;
+
+            var duration = ParserUtil.lengthDurations[unitNoteLength] * 1.0f / (1 << brokenRhythmCount);
+            ParserUtil.ParseDuration(duration, out Length l, out int dots);
+            halfItem.length = l;
+            halfItem.dotCount = dots;
+
+            brokenRhythm = BrokenRhythm.None;
         }
 
         void UpdateNoteBeam(Note noteItem)
@@ -233,10 +295,8 @@ namespace ABC
             float chordDurationModifier = ReadDurationModifier();
             // spec states that length modifiers inside the chord are multiplied by outside
             float noteDuration = ParserUtil.lengthDurations[unitNoteLength] * (noteDurationModifier * chordDurationModifier);
-
-            Length chordLength;
-            int dotCount;
-            if (!ParserUtil.ParseDuration(noteDuration, out chordLength, out dotCount))
+            
+            if (!ParserUtil.ParseDuration(noteDuration, out Length chordLength, out int dotCount))
                 throw new ParseException($"Invalid Note duration at {lineNum}, {index}");
 
             chord.length = chordLength;
@@ -247,7 +307,6 @@ namespace ABC
 
         void ReadRest()
         {
-            
             if (char.IsLower(currentLine[index]))
             {
                 var rest = new Rest();
