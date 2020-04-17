@@ -30,10 +30,10 @@ namespace TestABC
 
             for (int i = 0; i < expectedCounts.Count; i++)
             {
-                var restItem = voice.items[i] as MultiMeasureRestItem;
+                var restItem = voice.items[i] as MultiMeasureRest;
                 Assert.IsNotNull(restItem);
                 
-                Assert.AreEqual(expectedCounts[i], restItem.rest.count);
+                Assert.AreEqual(expectedCounts[i], restItem.count);
             }
         }
 
@@ -56,10 +56,9 @@ namespace TestABC
 
             for (int i = 0; i < expectedVisibilities.Count; i++)
             {
-                var restItem = voice.items[i] as MultiMeasureRestItem;
+                var restItem = voice.items[i] as MultiMeasureRest;
                 Assert.IsNotNull(restItem);
-                
-                Assert.AreEqual(expectedVisibilities[i], restItem.rest.isVisible);
+                Assert.AreEqual(expectedVisibilities[i], restItem.isVisible);
             }
         }
         

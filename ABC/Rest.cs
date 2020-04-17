@@ -9,9 +9,13 @@ namespace ABC
         }
     }
 
-    public class MultiMeasureRest
+    public class MultiMeasureRest : Item
     {
         public bool isVisible { get; set; }
         public int count { get; set; }
+        
+        public MultiMeasureRest() : base(Type.MultiMeasureRest)
+        {
+        }
     }
 }

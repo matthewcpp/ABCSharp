@@ -57,7 +57,7 @@ namespace ABC
             voice = new Voice(defaultVoiceIdentifier);
             
             if (timeSignature != null)
-                voice.items.Add(new TimeSignatureItem(timeSignature));
+                voice.items.Add(new TimeSignature(timeSignature));
             
             tune.voices.Add(voice);
         }
@@ -277,7 +277,7 @@ namespace ABC
                     rest.count = 1;
                 }    
                 
-                voice.items.Add(new MultiMeasureRestItem(rest));
+                voice.items.Add(rest);
             }
         }
 
@@ -400,7 +400,7 @@ namespace ABC
             if (parsingTuneBody)
             {
                 foreach (var v in tune.voices)
-                    v.items.Add(new TimeSignatureItem(timeSignature));
+                    v.items.Add(new TimeSignature(timeSignature));
             }
         }
 
@@ -465,7 +465,7 @@ namespace ABC
                 voice = new Voice(identifier);
 
                 if (timeSignature != null)
-                    voice.items.Add(new TimeSignatureItem(timeSignature));
+                    voice.items.Add(new TimeSignature(timeSignature));
 
                 tune.voices.Add(voice);
             }

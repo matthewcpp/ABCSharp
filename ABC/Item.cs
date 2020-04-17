@@ -24,24 +24,4 @@ namespace ABC
             type = t;
         }
     }
-
-    public class TimeSignatureItem : Item
-    {
-        public string timeSignature { get; }
-
-        public TimeSignatureItem(string ts) : base(Type.TimeSignature)
-        {
-            timeSignature = ts;
-        }
-    }
-
-    public class MultiMeasureRestItem : Item
-    {
-        public MultiMeasureRest rest { get; }
-
-        public MultiMeasureRestItem(MultiMeasureRest rest) : base(Type.MultiMeasureRest)
-        {
-            this.rest = rest;
-        }
-    }
 }
