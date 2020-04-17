@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ABC
 {
     public class Chord : Duration
     {
-        public struct Element
+        public struct Element : IComparable<Element>
         {
             public readonly Pitch pitch;
             public readonly Accidental accidental;
@@ -13,6 +14,11 @@ namespace ABC
             {
                 this.pitch = pitch;
                 this.accidental = accidental;
+            }
+            
+            public int CompareTo(Element other)
+            {
+                return pitch.CompareTo(other.pitch);
             }
         }
         
