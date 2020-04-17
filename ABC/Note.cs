@@ -9,8 +9,6 @@ namespace ABC
         public Pitch pitch { get; set; }
         public Accidental accidental { get; set; }
 
-        public int beam { get; set; }
-
         public Note(Pitch pitch = Pitch.C4, Length length = Length.Eighth, Accidental accidental = Accidental.Unspecified, int dotCount = 0) 
             : base(Item.Type.Note)
         {

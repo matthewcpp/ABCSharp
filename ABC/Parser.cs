@@ -141,8 +141,6 @@ namespace ABC
                         ParseTuneBodyInformationField();
                     else
                         throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
-
-                    beam = false;
                 }
                 else if (currentLine[index] == '|')
                 {
@@ -160,7 +158,7 @@ namespace ABC
                 {
                     EnsureVoice();
                     var note = ReadFullNote();
-                    UpdateNoteBeam(note);
+                    UpdateBeam(note);
 
                     voice.items.Add(note);
                 }
@@ -228,9 +226,9 @@ namespace ABC
             brokenRhythm = BrokenRhythm.None;
         }
 
-        void UpdateNoteBeam(Note noteItem)
+        void UpdateBeam(Duration item)
         {
-            if (noteItem.length <= Length.Eighth)
+            if (item.length <= Length.Eighth)
             {
                 if (!beam) // potentially start a new beam
                 {
@@ -240,11 +238,11 @@ namespace ABC
                 else
                 {
                     // if the previous note has the same value as this one then we can beam it
-                    var previousNoteItem = voice.items[voice.items.Count - 1] as Note;
-                    if (previousNoteItem.length == noteItem.length)
+                    var previousItem = voice.items[voice.items.Count - 1] as Duration;
+                    if (previousItem != null && previousItem.length == item.length)
                     {
-                        previousNoteItem.beam = beamId;
-                        noteItem.beam = beamId;
+                        previousItem.beam = beamId;
+                        item.beam = beamId;
                     }
                     else
                     {
@@ -302,6 +300,7 @@ namespace ABC
             chord.length = chordLength;
             chord.dotCount = dotCount;
 
+            UpdateBeam(chord);
             voice.items.Add(chord);
         }
 

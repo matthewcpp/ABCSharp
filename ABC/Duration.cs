@@ -4,6 +4,7 @@
     {
         public Length length { get; set; }
         public int dotCount { get; set; }
+        public int beam { get; set; }
 
         public float baseLengthDuration => ParserUtil.lengthDurations[length];
 
