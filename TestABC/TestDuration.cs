@@ -18,25 +18,25 @@ namespace TestABC
         {
             var notes = new List<Note>()
             {
-                new Note(Note.Pitch.C4, Length.Whole, Note.Accidental.Unspecified, 1),
-                new Note(Note.Pitch.C4, Length.Whole, Note.Accidental.Unspecified, 2),
-                new Note(Note.Pitch.C4, Length.Whole, Note.Accidental.Unspecified, 3),
+                new Note(Pitch.C4, Length.Whole, Accidental.Unspecified, 1),
+                new Note(Pitch.C4, Length.Whole, Accidental.Unspecified, 2),
+                new Note(Pitch.C4, Length.Whole, Accidental.Unspecified, 3),
                 
-                new Note(Note.Pitch.C4, Length.Half, Note.Accidental.Unspecified, 1),
-                new Note(Note.Pitch.C4, Length.Half, Note.Accidental.Unspecified, 2),
-                new Note(Note.Pitch.C4, Length.Half, Note.Accidental.Unspecified, 3),
+                new Note(Pitch.C4, Length.Half, Accidental.Unspecified, 1),
+                new Note(Pitch.C4, Length.Half, Accidental.Unspecified, 2),
+                new Note(Pitch.C4, Length.Half, Accidental.Unspecified, 3),
                 
-                new Note(Note.Pitch.C4, Length.Quarter, Note.Accidental.Unspecified, 1),
-                new Note(Note.Pitch.C4, Length.Quarter, Note.Accidental.Unspecified, 2),
-                new Note(Note.Pitch.C4, Length.Quarter, Note.Accidental.Unspecified, 3),
+                new Note(Pitch.C4, Length.Quarter, Accidental.Unspecified, 1),
+                new Note(Pitch.C4, Length.Quarter, Accidental.Unspecified, 2),
+                new Note(Pitch.C4, Length.Quarter, Accidental.Unspecified, 3),
                 
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Unspecified, 1),
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Unspecified, 2),
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Unspecified, 3),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Unspecified, 1),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Unspecified, 2),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Unspecified, 3),
                 
-                new Note(Note.Pitch.C4, Length.Sixteenth, Note.Accidental.Unspecified, 1),
-                new Note(Note.Pitch.C4, Length.Sixteenth, Note.Accidental.Unspecified, 2),
-                new Note(Note.Pitch.C4, Length.Sixteenth, Note.Accidental.Unspecified, 3)
+                new Note(Pitch.C4, Length.Sixteenth, Accidental.Unspecified, 1),
+                new Note(Pitch.C4, Length.Sixteenth, Accidental.Unspecified, 2),
+                new Note(Pitch.C4, Length.Sixteenth, Accidental.Unspecified, 3)
             };
 
             // https://en.wikipedia.org/wiki/Note_value

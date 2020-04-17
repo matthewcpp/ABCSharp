@@ -30,10 +30,10 @@ namespace TestABC
 
             for (int i = 0; i < expectedLengths.Count; i++)
             {
-                var restItem = voice.items[i] as RestItem;
+                var restItem = voice.items[i] as Rest;
                 Assert.IsNotNull(restItem);
                 
-                Assert.AreEqual(expectedLengths[i], restItem.rest.length);
+                Assert.AreEqual(expectedLengths[i], restItem.length);
             }
         }
 
@@ -56,10 +56,10 @@ namespace TestABC
 
             for (int i = 0; i < expectedVisibilities.Count; i++)
             {
-                var restItem = voice.items[i] as RestItem;
+                var restItem = voice.items[i] as Rest;
                 Assert.IsNotNull(restItem);
                 
-                Assert.AreEqual(expectedVisibilities[i], restItem.rest.isVisible);
+                Assert.AreEqual(expectedVisibilities[i], restItem.isVisible);
             }
         }
 
@@ -83,9 +83,9 @@ namespace TestABC
             for (int i = 0; i < expectedTypes.Count; i++)
             {
                 if (expectedTypes[i] == Item.Type.Rest)
-                    Assert.IsNotNull(voice.items[i] as RestItem);
+                    Assert.IsNotNull(voice.items[i] as Rest);
                 else
-                    Assert.IsNotNull(voice.items[i] as NoteItem);
+                    Assert.IsNotNull(voice.items[i] as Note);
             }
         }
 

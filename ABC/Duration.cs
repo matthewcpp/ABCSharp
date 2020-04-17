@@ -1,6 +1,6 @@
 ﻿namespace ABC
 {
-    public abstract class Duration
+    public abstract class Duration : Item
     {
         public Length length { get; set; }
         public int dotCount { get; set; }
@@ -22,6 +22,10 @@
 
                 return totalDuration;
             }
+        }
+
+        protected Duration(Item.Type type) : base(type)
+        {
         }
     }
 }

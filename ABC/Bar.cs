@@ -4,16 +4,16 @@ using System.Text;
 
 namespace ABC
 {
-    public class Bar
+    public class Bar : Item
     {
         public enum Type
         {
             Line
         }
 
-        public Type type { get; set; }
+        public Type type { get;}
 
-        public Bar(Type t)
+        public Bar(Type t) : base(Item.Type.Bar)
         {
             type = t;
         }

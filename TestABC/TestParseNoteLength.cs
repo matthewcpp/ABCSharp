@@ -30,10 +30,10 @@ namespace TestABC
             Assert.AreEqual(expectedNoteLengths.Count, voice.items.Count);
             for (int i  = 0; i < expectedNoteLengths.Count; i++)
             {
-                var noteItem = voice.items[i] as NoteItem;
+                var noteItem = voice.items[i] as Note;
                 Assert.IsNotNull(noteItem);
 
-                Assert.AreEqual(expectedNoteLengths[i], noteItem.note.length);
+                Assert.AreEqual(expectedNoteLengths[i], noteItem.length);
             }
         }
 
@@ -58,10 +58,10 @@ namespace TestABC
             Assert.AreEqual(expectedNoteLengths.Count, voice.items.Count);
             for (int i = 0; i < expectedNoteLengths.Count; i++)
             {
-                var noteItem = voice.items[i] as NoteItem;
+                var noteItem = voice.items[i] as Note;
                 Assert.IsNotNull(noteItem);
 
-                Assert.AreEqual(expectedNoteLengths[i], noteItem.note.length);
+                Assert.AreEqual(expectedNoteLengths[i], noteItem.length);
             }
         }
 
@@ -86,10 +86,10 @@ namespace TestABC
             Assert.AreEqual(expectedNoteLengths.Count, voice.items.Count);
             for (int i = 0; i < expectedNoteLengths.Count; i++)
             {
-                var noteItem = voice.items[i] as NoteItem;
+                var noteItem = voice.items[i] as Note;
                 Assert.IsNotNull(noteItem);
 
-                Assert.AreEqual(expectedNoteLengths[i], noteItem.note.length);
+                Assert.AreEqual(expectedNoteLengths[i], noteItem.length);
             }
         }
 
@@ -116,10 +116,10 @@ namespace TestABC
                 var voice = tune.voices[0];
 
                 Assert.AreEqual(1, voice.items.Count);
-                var noteItem = voice.items[0] as NoteItem;
+                var noteItem = voice.items[0] as Note;
                 
-                Assert.AreEqual(expectedUnitLengths[i], noteItem.note.length);
-                Assert.AreEqual(1, noteItem.note.dotCount);
+                Assert.AreEqual(expectedUnitLengths[i], noteItem.length);
+                Assert.AreEqual(1, noteItem.dotCount);
             }
         }
 

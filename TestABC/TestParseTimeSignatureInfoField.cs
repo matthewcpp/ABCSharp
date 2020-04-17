@@ -22,10 +22,10 @@ namespace TestABC
             var voice = tune.voices[0];
             
             Assert.AreEqual(2, voice.items.Count);
-            var timeSignatureItem = voice.items[0] as TimeSignatureItem;
+            var timeSignatureItem = voice.items[0] as TimeSignature;
             
             Assert.IsNotNull(timeSignatureItem);
-            Assert.AreEqual(expectedTimeSignature, timeSignatureItem.timeSignature);
+            Assert.AreEqual(expectedTimeSignature, timeSignatureItem.value);
         }
 
         [TestMethod]
@@ -44,13 +44,13 @@ namespace TestABC
             foreach (var voice in tune.voices)
             {
                 Assert.AreEqual(6, voice.items.Count);
-                var defaultTimeSignature = voice.items[0] as TimeSignatureItem;
+                var defaultTimeSignature = voice.items[0] as TimeSignature;
                 Assert.IsNotNull(defaultTimeSignature);
-                Assert.AreEqual("4/4", defaultTimeSignature.timeSignature);
+                Assert.AreEqual("4/4", defaultTimeSignature.value);
 
-                var cutTimeItem = voice.items[5] as TimeSignatureItem;
+                var cutTimeItem = voice.items[5] as TimeSignature;
                 Assert.IsNotNull(cutTimeItem);
-                Assert.AreEqual("2/2", cutTimeItem.timeSignature);
+                Assert.AreEqual("2/2", cutTimeItem.value);
             }
         }
 
@@ -66,14 +66,14 @@ namespace TestABC
             var voice = tune.voices[0];
             
             Assert.AreEqual(4, voice.items.Count);
-            var commonTimeItem = voice.items[0] as TimeSignatureItem;
+            var commonTimeItem = voice.items[0] as TimeSignature;
             
             Assert.IsNotNull(commonTimeItem);
-            Assert.AreEqual(commonTime, commonTimeItem.timeSignature);
+            Assert.AreEqual(commonTime, commonTimeItem.value);
 
-            var cutTimeItem = voice.items[2] as TimeSignatureItem;
+            var cutTimeItem = voice.items[2] as TimeSignature;
             Assert.IsNotNull(cutTimeItem);
-            Assert.AreEqual(cutTime, cutTimeItem.timeSignature);
+            Assert.AreEqual(cutTime, cutTimeItem.value);
         }
     }
 }

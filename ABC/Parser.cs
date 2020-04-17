@@ -57,7 +57,7 @@ namespace ABC
             voice = new Voice(defaultVoiceIdentifier);
             
             if (timeSignature != null)
-                voice.items.Add(new TimeSignatureItem(timeSignature));
+                voice.items.Add(new TimeSignature(timeSignature));
             
             tune.voices.Add(voice);
         }
@@ -141,18 +141,17 @@ namespace ABC
                 else if (currentLine[index] == '|')
                 {
                     EnsureVoice();
-                    voice.items.Add(new BarItem(new Bar(Bar.Type.Line)));
+                    voice.items.Add(new Bar(Bar.Type.Line));
                     index += 1;
                     beam = false;
                 }
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
                 {
                     EnsureVoice();
-                    var note = ReadNote();
-                    var noteItem = new NoteItem(note);
-                    UpdateNoteBeam(noteItem);
+                    var note = ReadFullNote();
+                    UpdateNoteBeam(note);
 
-                    voice.items.Add(noteItem);
+                    voice.items.Add(note);
                 }
                 else if (Elements.rests.Contains(currentLine[index]))
                 {
@@ -167,9 +166,9 @@ namespace ABC
             }
         }
 
-        void UpdateNoteBeam(NoteItem noteItem)
+        void UpdateNoteBeam(Note noteItem)
         {
-            if (noteItem.note.length <= Length.Eighth)
+            if (noteItem.length <= Length.Eighth)
             {
                 if (!beam) // potentially start a new beam
                 {
@@ -179,8 +178,8 @@ namespace ABC
                 else
                 {
                     // if the previous note has the same value as this one then we can beam it
-                    var previousNoteItem = voice.items[voice.items.Count - 1] as NoteItem;
-                    if (previousNoteItem.note.length == noteItem.note.length)
+                    var previousNoteItem = voice.items[voice.items.Count - 1] as Note;
+                    if (previousNoteItem.length == noteItem.length)
                     {
                         previousNoteItem.beam = beamId;
                         noteItem.beam = beamId;
@@ -200,9 +199,10 @@ namespace ABC
         void ParseChord()
         {
             EnsureVoice();
-            
+
             index += 1;
             var notes = new List<Note>();
+            float noteDurationModifier = 1.0f;
 
             do
             {
@@ -211,8 +211,13 @@ namespace ABC
 
                 if (!Elements.IsStartOfNoteStream(currentLine[index]))
                     throw new ParseException($"Invalid character in chord at {lineNum}, {index}");
-
-                notes.Add(ReadNote());
+                
+                notes.Add(ReadBaseNote());
+                
+                //only the duration modifier for the first chord will have impact on its overall duration
+                float durationModifier = ReadDurationModifier();
+                if (notes.Count == 1)
+                    noteDurationModifier = durationModifier;
 
                 if (index == currentLine.Length)
                     throw new ParseException($"Unterminated chord at {lineNum}, {index}");
@@ -224,7 +229,20 @@ namespace ABC
             if (notes.Count == 0)
                 throw new ParseException($"Encountered empty chord at {lineNum}, {index}");
 
-            voice.items.Add(new ChordItem(notes));
+            var chord = Chord.FromNotes(notes);
+            float chordDurationModifier = ReadDurationModifier();
+            // spec states that length modifiers inside the chord are multiplied by outside
+            float noteDuration = ParserUtil.lengthDurations[unitNoteLength] * (noteDurationModifier * chordDurationModifier);
+
+            Length chordLength;
+            int dotCount;
+            if (!ParserUtil.ParseDuration(noteDuration, out chordLength, out dotCount))
+                throw new ParseException($"Invalid Note duration at {lineNum}, {index}");
+
+            chord.length = chordLength;
+            chord.dotCount = dotCount;
+
+            voice.items.Add(chord);
         }
 
         void ReadRest()
@@ -236,7 +254,7 @@ namespace ABC
                 rest.isVisible = currentLine[index] == 'z';
                 index += 1;
                 ParseLengthValues(rest);
-                voice.items.Add(new RestItem(rest));
+                voice.items.Add(rest);
             }
             else
             {
@@ -259,24 +277,24 @@ namespace ABC
                     rest.count = 1;
                 }    
                 
-                voice.items.Add(new MultiMeasureRestItem(rest));
+                voice.items.Add(rest);
             }
         }
 
-        Note ReadNote()
+        private Note ReadBaseNote()
         {
             var note = new Note();
 
             note.accidental = Elements.GetAccidental(currentLine[index]);
             
-            if (note.accidental != Note.Accidental.Unspecified)
+            if (note.accidental != Accidental.Unspecified)
                 index += 1;
 
             if (index == currentLine.Length)
                 throw new ParseException("Invalid note specification");
 
             // start with Middle C aka 'C'
-            int noteValue = (int) Note.Pitch.C4;
+            int noteValue = (int) Pitch.C4;
 
             try
             {
@@ -300,12 +318,18 @@ namespace ABC
             }
 
             // ensure final note value is valid
-            if (noteValue < (int)Note.Pitch.A0 || noteValue > (int)Note.Pitch.C8)
+            if (noteValue < (int)Pitch.A0 || noteValue > (int)Pitch.C8)
                 throw new ParseException("Invalid note value");
 
-            note.pitch = (Note.Pitch)noteValue;
-            ParseLengthValues(note);
+            note.pitch = (Pitch)noteValue;
 
+            return note;
+        }
+
+        Note ReadFullNote()
+        {
+            var note = ReadBaseNote();
+            ParseLengthValues(note);
             return note;
         }
 
@@ -318,21 +342,26 @@ namespace ABC
             duration.dotCount = dots;
         }
 
-        void ParseLength(out Length length, out int dots)
+        float ReadDurationModifier()
         {
             // length modifier will be either '/*' or '\d*/N'
             ReadUntil((char c) => { return !char.IsDigit(c) && c != '/'; }, out string lengthMod);
 
-            float noteDuration = ParserUtil.lengthDurations[unitNoteLength];
             try
             {
-                noteDuration *= ParserUtil.ParseDurationModifierString(lengthMod);
+                return ParserUtil.ParseDurationModifierString(lengthMod);
             }
             catch (FormatException)
             {
                 throw new ParseException($"Unable to parse length modifier at {lineNum}, {index}");
             }
+        }
 
+        void ParseLength(out Length length, out int dots)
+        {
+            float noteDuration = ParserUtil.lengthDurations[unitNoteLength];
+            noteDuration *= ReadDurationModifier();
+            
             if (!ParserUtil.ParseDuration(noteDuration, out length, out dots))
                 throw new ParseException($"Invalid Note duration at {lineNum}, {index}");
         }
@@ -371,7 +400,7 @@ namespace ABC
             if (parsingTuneBody)
             {
                 foreach (var v in tune.voices)
-                    v.items.Add(new TimeSignatureItem(timeSignature));
+                    v.items.Add(new TimeSignature(timeSignature));
             }
         }
 
@@ -436,7 +465,7 @@ namespace ABC
                 voice = new Voice(identifier);
 
                 if (timeSignature != null)
-                    voice.items.Add(new TimeSignatureItem(timeSignature));
+                    voice.items.Add(new TimeSignature(timeSignature));
 
                 tune.voices.Add(voice);
             }

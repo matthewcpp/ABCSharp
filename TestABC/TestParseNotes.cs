@@ -19,9 +19,9 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Pitch.C2), new Note(Note.Pitch.C3), 
-                new Note(Note.Pitch.C4), new Note(Note.Pitch.C5), 
-                new Note(Note.Pitch.C6), new Note(Note.Pitch.C7)
+                new Note(Pitch.C2), new Note(Pitch.C3), 
+                new Note(Pitch.C4), new Note(Pitch.C5), 
+                new Note(Pitch.C6), new Note(Pitch.C7)
             };
             
             var tune = Tune.Load(notes);
@@ -34,8 +34,8 @@ namespace TestABC
             for (int i = 0; i < expectedNotes.Count; i++)
             {
                 Assert.AreEqual(Item.Type.Note, voice.items[i].type);
-                var noteItem = voice.items[i] as NoteItem;
-                Assert.AreEqual(expectedNotes[i], noteItem.note);
+                var noteItem = voice.items[i] as Note;
+                Assert.AreEqual(expectedNotes[i], noteItem);
             }
         }
 
@@ -49,10 +49,10 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Unspecified),
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Sharp),
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Flat),
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Natural)
+                new Note(Pitch.C4, Length.Eighth, Accidental.Unspecified),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Sharp),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Flat),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Natural)
             };
 
             Assert.AreEqual(notes.Count, expectedNotes.Count);
@@ -68,9 +68,9 @@ namespace TestABC
                 Assert.AreEqual(1, staff.items.Count);
 
                 Assert.AreEqual(Item.Type.Note, staff.items[0].type);
-                var noteItem = staff.items[0] as NoteItem;
+                var noteItem = staff.items[0] as Note;
 
-                Assert.AreEqual(expectedNotes[i], noteItem.note);
+                Assert.AreEqual(expectedNotes[i], noteItem);
             }
         }
 
@@ -85,9 +85,9 @@ namespace TestABC
 
             var expectedNotes = new List<Note>()
             {
-                new Note(Note.Pitch.A5, Length.Eighth, Note.Accidental.Flat),
-                new Note(Note.Pitch.C4, Length.Eighth, Note.Accidental.Sharp),
-                new Note(Note.Pitch.D4, Length.Eighth, Note.Accidental.Unspecified)
+                new Note(Pitch.A5, Length.Eighth, Accidental.Flat),
+                new Note(Pitch.C4, Length.Eighth, Accidental.Sharp),
+                new Note(Pitch.D4, Length.Eighth, Accidental.Unspecified)
             };
 
             foreach (var noteStr in notes)
@@ -103,9 +103,9 @@ namespace TestABC
                 for (int i = 0; i < expectedNotes.Count; i++)
                 {
                     Assert.AreEqual(Item.Type.Note, voice.items[i].type);
-                    var noteItem = voice.items[i] as NoteItem;
+                    var noteItem = voice.items[i] as Note;
 
-                    Assert.AreEqual(expectedNotes[i], noteItem.note);
+                    Assert.AreEqual(expectedNotes[i], noteItem);
                 }
             }
         }
@@ -137,7 +137,7 @@ namespace TestABC
 
             for (int i = 0; i < expectedBeamVals.Count; i++)
             {
-                var noteItem = voice.items[i] as NoteItem;
+                var noteItem = voice.items[i] as Note;
                 Assert.IsNotNull(noteItem);
 
                 Assert.AreEqual(expectedBeamVals[i], noteItem.beam);
@@ -158,7 +158,7 @@ namespace TestABC
 
             foreach (var item in voice.items)
             {
-                var noteItem = item as NoteItem;
+                var noteItem = item as Note;
                 Assert.IsNotNull(noteItem);
 
                 Assert.AreEqual(0, noteItem.beam);
@@ -183,7 +183,7 @@ namespace TestABC
 
             foreach(var expectedValue in expectedBeamValues)
             {
-                var noteItem = voice.items[expectedValue.Key] as NoteItem;
+                var noteItem = voice.items[expectedValue.Key] as Note;
 
                 Assert.IsNotNull(noteItem);
                 Assert.AreEqual(expectedValue.Value, noteItem.beam);
