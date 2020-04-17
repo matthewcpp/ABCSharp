@@ -23,7 +23,7 @@ namespace TestABC
             var barItem = voice.items[0] as Bar;
             Assert.IsNotNull(barItem);
 
-            Assert.AreEqual(Bar.Type.Line, barItem.type);
+            Assert.AreEqual(Bar.Kind.Line, barItem.kind);
         }
     }
 }

@@ -6,16 +6,16 @@ namespace ABC
 {
     public class Bar : Item
     {
-        public enum Type
+        public enum Kind
         {
             Line
         }
 
-        public Type type { get;}
+        public Kind kind { get;}
 
-        public Bar(Type t) : base(Item.Type.Bar)
+        public Bar(Kind t) : base(Item.Type.Bar)
         {
-            type = t;
+            kind = t;
         }
     }
 }
