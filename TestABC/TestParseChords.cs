@@ -109,6 +109,29 @@ namespace TestABC
         }
 
         [TestMethod]
+        public void SortsElements()
+        {
+            var notes = new List<Note>()
+            {
+                new Note(Pitch.C4),
+                new Note(Pitch.D2),
+                new Note(Pitch.E3),
+                new Note(Pitch.A6)
+            };
+
+            var expectedElementPitches = new List<Pitch>()
+            {
+                Pitch.D2, Pitch.E3, Pitch.C4, Pitch.A6
+            };
+            
+            var chord = Chord.FromNotes(notes);
+            Assert.AreEqual(expectedElementPitches.Count, chord.notes.Length);
+            
+            for (int i = 0; i < expectedElementPitches.Count; i++)
+                Assert.AreEqual(expectedElementPitches[i], chord.notes[i].pitch);
+        }
+
+        [TestMethod]
         public void UnterminatedChord()
         {
             Assert.ThrowsException<ParseException>(()=> { Tune.Load("[CEG"); });
