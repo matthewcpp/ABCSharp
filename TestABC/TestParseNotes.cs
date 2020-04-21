@@ -173,7 +173,7 @@ namespace TestABC
             // items index -> beam value
             var expectedBeamValues = new Dictionary<int, int>()
             {
-                { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }, { 4, 0 }, { 5, 3 },{ 6, 3 },{ 8, 0 }, { 9, 5 },{ 10, 5 }, { 12, 0 }, { 13, 7 }, { 14, 7 }, { 16, 0 }
+                { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }, { 4, 0 }, { 5, 3 },{ 6, 3 },{ 7, 3 }, { 8, 3 }, { 9, 4}, { 10, 4 }, { 11, 0 }, { 12, 0 }, { 13, 6 }, { 14, 6 }, { 16, 0 }
             };
 
             var tune = Tune.Load(abc);
@@ -183,10 +183,10 @@ namespace TestABC
 
             foreach(var expectedValue in expectedBeamValues)
             {
-                var noteItem = voice.items[expectedValue.Key] as Note;
+                var noteItem = voice.items[expectedValue.Key] as Duration;
 
                 Assert.IsNotNull(noteItem);
-                Assert.AreEqual(expectedValue.Value, noteItem.beam);
+                Assert.AreEqual(expectedValue.Value, noteItem.beam, $"{expectedValue}");
             }
         }
     }
