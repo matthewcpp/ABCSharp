@@ -31,6 +31,8 @@ namespace ABC
         bool beam = false;
         int beamId = 0;
 
+        private List<string> decorations = null;
+
         public Tune Parse(Stream stream)
         {
             reader = new StreamReader(stream);
@@ -145,13 +147,20 @@ namespace ABC
                 else if (currentLine[index] == '|')
                 {
                     EnsureVoice();
-                    voice.items.Add(new Bar(Bar.Kind.Line));
+                    var bar = new Bar(Bar.Kind.Line);
+                    SetDecorationsForItem(bar);
+                    voice.items.Add(bar);
                     index += 1;
                     beam = false;
                 }
                 else if (currentLine[index] == '>' || currentLine[index] == '<')
                 {
                     ParseBrokenRhythm();
+                    continue;
+                }
+                else if (currentLine[index] == '!')
+                {
+                    ParseDecorations();
                     continue;
                 }
                 else if (Elements.IsStartOfNoteStream(currentLine[index]))
@@ -174,6 +183,27 @@ namespace ABC
                 }
 
                 UpdateBrokenRhythm();
+
+                if (decorations != null)
+                    throw new ParseException($"Invalid decoration near {lineNum}, {index}");
+            }
+        }
+
+        void ParseDecorations()
+        {
+            decorations = new List<string>();
+            
+            while (currentLine[index] == '!')
+            {
+                index += 1;
+                bool eol = ReadUntil((char c) => { return c == '!'; }, out string decoration);
+                
+                if (eol)
+                    throw new ParseException($"Unterminated decoration near: {lineNum}, {index}");
+                
+                decorations.Add(decoration);
+
+                index += 1;
             }
         }
 
@@ -302,6 +332,7 @@ namespace ABC
 
             UpdateBeam(chord);
             voice.items.Add(chord);
+            SetDecorationsForItem(chord);
         }
 
         void ReadRest()
@@ -312,6 +343,7 @@ namespace ABC
                 rest.isVisible = currentLine[index] == 'z';
                 index += 1;
                 ParseLengthValues(rest);
+                SetDecorationsForItem(rest);
                 voice.items.Add(rest);
             }
             else
@@ -388,7 +420,18 @@ namespace ABC
         {
             var note = ReadBaseNote();
             ParseLengthValues(note);
+            SetDecorationsForItem(note);
+
             return note;
+        }
+
+        private void SetDecorationsForItem(Item item)
+        {
+            if (decorations != null)
+            {
+                tune.decorations[item] = decorations;
+                decorations = null;
+            }
         }
 
         void ParseLengthValues(Duration duration)
