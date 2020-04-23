@@ -14,7 +14,7 @@ namespace ABC
         /// <summary>
         /// Maps an item to a list of decorations which have been attached to it.
         /// </summary>
-        public Dictionary<Item, List<string>> decorations { get; } = new Dictionary<Item, List<string>>();
+        public Dictionary<int, List<string>> decorations { get; } = new Dictionary<int, List<string>>();
 
         /// <summary>
         /// Loads a Tune from a string

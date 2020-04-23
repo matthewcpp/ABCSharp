@@ -33,8 +33,8 @@ namespace TestABC
             var note = voice.items[0] as Note;
             Assert.IsNotNull(note);
 
-            Assert.IsTrue(tune.decorations.ContainsKey(note));
-            var decorators = tune.decorations[note];
+            Assert.IsTrue(tune.decorations.ContainsKey(note.id));
+            var decorators = tune.decorations[note.id];
             Assert.IsTrue(expectedDecorationValues.SequenceEqual(decorators));
         }
 
@@ -59,8 +59,8 @@ namespace TestABC
             var chord = voice.items[0] as Chord;
             Assert.IsNotNull(chord);
 
-            Assert.IsTrue(tune.decorations.ContainsKey(chord));
-            var decorators = tune.decorations[chord];
+            Assert.IsTrue(tune.decorations.ContainsKey(chord.id));
+            var decorators = tune.decorations[chord.id];
             Assert.IsTrue(expectedDecorationValues.SequenceEqual(decorators));
         }
 
@@ -85,8 +85,8 @@ namespace TestABC
             var rest = voice.items[0] as Rest;
             Assert.IsNotNull(rest);
 
-            Assert.IsTrue(tune.decorations.ContainsKey(rest));
-            var decorators = tune.decorations[rest];
+            Assert.IsTrue(tune.decorations.ContainsKey(rest.id));
+            var decorators = tune.decorations[rest.id];
             Assert.IsTrue(expectedDecorationValues.SequenceEqual(decorators));
         }
 
@@ -111,8 +111,8 @@ namespace TestABC
             var bar = voice.items[0] as Bar;
             Assert.IsNotNull(bar);
 
-            Assert.IsTrue(tune.decorations.ContainsKey(bar));
-            var decorators = tune.decorations[bar];
+            Assert.IsTrue(tune.decorations.ContainsKey(bar.id));
+            var decorators = tune.decorations[bar.id];
             Assert.IsTrue(expectedDecorationValues.SequenceEqual(decorators));
         }
 
@@ -135,9 +135,9 @@ namespace TestABC
             for (int i = 0; i < voice.items.Count; i++)
             {
                 if (expectedDecorationCounts[i] == 0)
-                    Assert.IsFalse(tune.decorations.ContainsKey(voice.items[i]));
+                    Assert.IsFalse(tune.decorations.ContainsKey(voice.items[i].id));
                 else
-                    Assert.AreEqual(expectedDecorationCounts[i], tune.decorations[voice.items[i]].Count);
+                    Assert.AreEqual(expectedDecorationCounts[i], tune.decorations[voice.items[i].id].Count);
             }
         }
 

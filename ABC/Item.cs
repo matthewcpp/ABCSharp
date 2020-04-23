@@ -19,9 +19,14 @@ namespace ABC
 
         public Type type { get; }
 
+        public int id { get; }
+        
+        private static int itemId = 0;
+
         public Item(Type t)
         {
             type = t;
+            id = ++itemId;
         }
     }
 }

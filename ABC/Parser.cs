@@ -429,7 +429,7 @@ namespace ABC
         {
             if (decorations != null)
             {
-                tune.decorations[item] = decorations;
+                tune.decorations[item.id] = decorations;
                 decorations = null;
             }
         }
