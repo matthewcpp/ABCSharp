@@ -25,5 +25,59 @@ namespace TestABC
 
             Assert.AreEqual(Bar.Kind.Line, barItem.kind);
         }
+
+        [TestMethod]
+        public void ThinThinLine()
+        {
+            var tune = Tune.Load("c||[cEG]");
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+
+            Assert.AreEqual(3, voice.items.Count);
+
+            Assert.IsNotNull(voice.items[0] as Note);
+            var bar = voice.items[1] as Bar;
+            Assert.IsNotNull(bar);
+            Assert.AreEqual(Bar.Kind.ThinThinDoubleBar, bar.kind);
+
+            Assert.IsNotNull(voice.items[2] as Chord);
+        }
+
+        [TestMethod]
+        public void ThinThickDoubleLine()
+        {
+            var tune = Tune.Load("[|[cEG]c");
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+
+            Assert.AreEqual(3, voice.items.Count);
+
+            var bar = voice.items[0] as Bar;
+            Assert.IsNotNull(bar);
+            Assert.AreEqual(Bar.Kind.ThickThinDoubleBar, bar.kind);
+
+            Assert.IsNotNull(voice.items[1] as Chord);
+            Assert.IsNotNull(voice.items[2] as Note);
+        }
+        
+        [TestMethod]
+        public void ThickThinDoubleLine()
+        {
+            var tune = Tune.Load("c[cEG]|]");
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+
+            Assert.AreEqual(3, voice.items.Count);
+
+            var bar = voice.items[2] as Bar;
+            Assert.IsNotNull(bar);
+            Assert.AreEqual(Bar.Kind.ThinThickDoubleBar, bar.kind);
+
+            Assert.IsNotNull(voice.items[0] as Note);
+            Assert.IsNotNull(voice.items[1] as Chord);
+        }
     }
 }

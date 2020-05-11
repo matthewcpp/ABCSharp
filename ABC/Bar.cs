@@ -8,7 +8,10 @@ namespace ABC
     {
         public enum Kind
         {
-            Line
+            Line,
+            ThinThinDoubleBar,
+            ThinThickDoubleBar,
+            ThickThinDoubleBar
         }
 
         public Kind kind { get;}

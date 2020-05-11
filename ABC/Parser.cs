@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace ABC
@@ -126,6 +127,56 @@ namespace ABC
             currentLine = savedCurrentLine;
             index = savedIndex;
         }
+        
+        private static readonly HashSet<char> barCharacters = new HashSet<char>() {'|', '[', ':'};
+
+        void ParseBar()
+        {
+            EnsureVoice();
+            Bar.Kind kind;
+            if (currentLine[index] == '|')
+            {
+                kind = Bar.Kind.Line;
+                index += 1;
+                
+                if (index == currentLine.Length)
+                    goto MakeBarItem;
+                
+                switch (currentLine[index])
+                {
+                    case ']':
+                        kind = Bar.Kind.ThinThickDoubleBar;
+                        index += 1;
+                        break;
+                    case '|':
+                        kind = Bar.Kind.ThinThinDoubleBar;
+                        index += 1;
+                        break;
+                }
+            }
+            else // if (currentLine[index] == '[')
+            {
+                index += 1;
+                if (index == currentLine.Length)
+                    throw new ParseException($"Unexpected bar at {lineNum}, {index}");
+                
+                if (currentLine[index] == '|')
+                {
+                    kind = Bar.Kind.ThickThinDoubleBar;
+                    index += 1;
+                }
+                else
+                {
+                    throw new ParseException($"Unexpected character while parsing bar at {lineNum}, {index}");
+                }
+            }
+            
+            MakeBarItem:
+            var bar = new Bar(kind);
+            SetDecorationsForItem(bar);
+            voice.items.Add(bar);
+            beam = false;
+        }
 
         void ParseTuneBody()
         {
@@ -142,16 +193,11 @@ namespace ABC
                     else if (IsStartOfInformationField(index + 1))
                         ParseTuneBodyInformationField();
                     else
-                        throw new ParseException($"Unexpected character: {currentLine[index]} at {lineNum}, {index}");
+                        ParseBar();
                 }
-                else if (currentLine[index] == '|')
+                else if (barCharacters.Contains(currentLine[index]))
                 {
-                    EnsureVoice();
-                    var bar = new Bar(Bar.Kind.Line);
-                    SetDecorationsForItem(bar);
-                    voice.items.Add(bar);
-                    index += 1;
-                    beam = false;
+                    ParseBar();
                 }
                 else if (currentLine[index] == '>' || currentLine[index] == '<')
                 {
