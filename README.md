@@ -8,7 +8,7 @@ Supported Features:
 - Notes: Accidentals, Octatve Modifiers, Chords, Length Modifier, Dots, Broken Rhythm
 - Information Fields: Unit note Length, Time Signature, Voice
 - Rests (individual and multi-measure)
-- Bar Line
+- Bar (single and double lines) repeat indicators
 - Multiple Voices: clef(treble, bass) and name modifiers
 
 Usage example:

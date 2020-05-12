@@ -15,6 +15,8 @@ namespace ABC
         }
 
         public Kind kind { get;}
+        public int startRepeatCount { get; set; } = 0;
+        public int endRepeatCount { get; set; } = 0;
 
         public Bar(Kind t) : base(Item.Type.Bar)
         {

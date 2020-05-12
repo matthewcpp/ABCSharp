@@ -127,52 +127,59 @@ namespace ABC
             currentLine = savedCurrentLine;
             index = savedIndex;
         }
-        
-        private static readonly HashSet<char> barCharacters = new HashSet<char>() {'|', '[', ':'};
 
         void ParseBar()
         {
             EnsureVoice();
             Bar.Kind kind;
-            if (currentLine[index] == '|')
+            int endRepeatCount = 0, startRepeatCount = 0;
+            string repeatStr;
+
+            if (currentLine[index] == ':')
             {
-                kind = Bar.Kind.Line;
+                ReadUntil((char c) => { return c != ':'; }, out repeatStr);
+                endRepeatCount = repeatStr.Length;
+            }
+
+            string barStr = string.Empty;
+            while (Elements.barCharacters.Contains(currentLine[index]))
+            {
+                barStr += currentLine[index];
                 index += 1;
                 
-                if (index == currentLine.Length)
-                    goto MakeBarItem;
-                
-                switch (currentLine[index])
-                {
-                    case ']':
-                        kind = Bar.Kind.ThinThickDoubleBar;
-                        index += 1;
-                        break;
-                    case '|':
-                        kind = Bar.Kind.ThinThinDoubleBar;
-                        index += 1;
-                        break;
-                }
+                if (index == currentLine.Length || barStr.Length == 2)
+                    break;
             }
-            else // if (currentLine[index] == '[')
-            {
-                index += 1;
-                if (index == currentLine.Length)
-                    throw new ParseException($"Unexpected bar at {lineNum}, {index}");
-                
-                if (currentLine[index] == '|')
-                {
-                    kind = Bar.Kind.ThickThinDoubleBar;
-                    index += 1;
-                }
-                else
-                {
-                    throw new ParseException($"Unexpected character while parsing bar at {lineNum}, {index}");
-                }
-            }
+
+            ReadUntil((char c) => { return c != ':'; }, out repeatStr);
+            startRepeatCount = repeatStr.Length;
             
-            MakeBarItem:
+            switch (barStr)
+            {
+                case "|":
+                    kind = Bar.Kind.Line;
+                    break;
+            
+                case "||":
+                    kind = Bar.Kind.ThinThinDoubleBar;
+                    break;
+            
+                case "[|":
+                    kind = Bar.Kind.ThickThinDoubleBar;
+                    break;
+            
+                case "|]":
+                    kind = Bar.Kind.ThinThickDoubleBar;
+                    break;
+            
+                default:
+                    throw new ParseException($"Unsupported Bar specification at {lineNum}, {index}");
+            }
+
             var bar = new Bar(kind);
+            bar.startRepeatCount = startRepeatCount;
+            bar.endRepeatCount = endRepeatCount;
+            
             SetDecorationsForItem(bar);
             voice.items.Add(bar);
             beam = false;
@@ -195,7 +202,7 @@ namespace ABC
                     else
                         ParseBar();
                 }
-                else if (barCharacters.Contains(currentLine[index]))
+                else if (Elements.IsStartOfBarItem(currentLine[index]))
                 {
                     ParseBar();
                 }

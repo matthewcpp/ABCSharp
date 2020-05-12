@@ -32,6 +32,13 @@ namespace ABC
             {"1", Length.Whole}, {"1/1", Length.Whole}, {"1/2", Length.Half},
             {"1/4", Length.Quarter}, {"1/8", Length.Eighth}, {"1/16", Length.Sixteenth}
         };
+        
+        public static readonly HashSet<char> barCharacters = new HashSet<char>() {'|', '[', ']'};
+
+        public static bool IsStartOfBarItem(char ch)
+        {
+            return barCharacters.Contains(ch) || ch == ':';
+        }
 
         public static bool IsStartOfNoteStream(int val)
         {

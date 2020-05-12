@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using ABC;
 namespace TestABC
 {
@@ -78,6 +77,58 @@ namespace TestABC
 
             Assert.IsNotNull(voice.items[0] as Note);
             Assert.IsNotNull(voice.items[1] as Chord);
+        }
+
+        [TestMethod]
+        public void StartRepeatSection()
+        {
+            var tests = new List<Tuple<string, Bar.Kind, int>>()
+            {
+                Tuple.Create("|:ccc", Bar.Kind.Line, 1),
+                Tuple.Create("[|::ccc", Bar.Kind.ThickThinDoubleBar, 2),
+                Tuple.Create("||:::ccc", Bar.Kind.ThinThinDoubleBar, 3),
+            };
+
+            foreach (var test in tests)
+            {
+                var tune = Tune.Load(test.Item1);
+                
+                Assert.AreEqual(1, tune.voices.Count);
+                var voice = tune.voices[0];
+                
+                Assert.AreEqual(4, voice.items.Count);
+                var bar = voice.items[0] as Bar;
+                Assert.IsNotNull(bar);
+                
+                Assert.AreEqual(test.Item2, bar.kind);
+                Assert.AreEqual(test.Item3, bar.startRepeatCount);
+            }
+        }
+        
+        [TestMethod]
+        public void EndRepeatSection()
+        {
+            var tests = new List<Tuple<string, Bar.Kind, int>>()
+            {
+                Tuple.Create("ccc:|", Bar.Kind.Line, 1),
+                Tuple.Create("ccc::|]", Bar.Kind.ThinThickDoubleBar, 2),
+                Tuple.Create("ccc:::||", Bar.Kind.ThinThinDoubleBar, 3),
+            };
+
+            foreach (var test in tests)
+            {
+                var tune = Tune.Load(test.Item1);
+                
+                Assert.AreEqual(1, tune.voices.Count);
+                var voice = tune.voices[0];
+                
+                Assert.AreEqual(4, voice.items.Count);
+                var bar = voice.items[3] as Bar;
+                Assert.IsNotNull(bar);
+                
+                Assert.AreEqual(test.Item2, bar.kind);
+                Assert.AreEqual(test.Item3, bar.endRepeatCount);
+            }
         }
     }
 }
