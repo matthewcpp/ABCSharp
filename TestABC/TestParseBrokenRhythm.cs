@@ -118,7 +118,7 @@ namespace TestABC
             };
 
             foreach (var abc in invalidAbc)
-                Assert.ThrowsException<ParseException>(() => { Tune.Load(abc); });
+                Assert.ThrowsException<ParseException>(() => { Tune.Load(abc); }, abc);
         }
     }
 }
