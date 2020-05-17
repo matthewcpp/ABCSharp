@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
@@ -133,6 +133,9 @@ namespace ABC
             index = savedIndex;
         }
 
+        static readonly List<char> thinBarChars = new List<char>() { '|', ']'};
+        static readonly List<char> thickBarChars = new List<char>() { '[', '|' };
+
         void ParseBar()
         {
             EnsureVoice();
@@ -148,14 +151,17 @@ namespace ABC
                 endRepeatCount = repeatStr.Length;
             }
 
-            string barStr = string.Empty;
-            while (Elements.barCharacters.Contains(currentLine[index]))
+            string barStr = new string(currentLine[index], 1);
+            index += 1;
+
+            if (index < currentLine.Length)
             {
-                barStr += currentLine[index];
-                index += 1;
-                
-                if (index == currentLine.Length || barStr.Length == 2)
-                    break;
+                List<char> characters = barStr[0] == '|' ? thinBarChars : thickBarChars;
+                if (characters.Contains(currentLine[index]))
+                {
+                    barStr += currentLine[index];
+                    index += 1;
+                }
             }
 
             ReadUntil((char c) => { return c != ':'; }, out repeatStr);
