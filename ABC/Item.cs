@@ -14,7 +14,8 @@ namespace ABC
             MultiMeasureRest,
             Note,
             Rest,
-            TimeSignature
+            TimeSignature,
+            LineBreak
         }
 
         public Type type { get; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,7 +9,7 @@ namespace ABC
 {
     class Parser
     {
-        TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
         private Tune tune;
 
         private Voice voice;
@@ -31,6 +31,10 @@ namespace ABC
 
         bool beam = false;
         int beamId = 0;
+
+        private enum LineBreakSymbol { None, EOL, DollarSign };
+        private List<LineBreakSymbol> lineBreakSymbols = new List<LineBreakSymbol>() { LineBreakSymbol.EOL, LineBreakSymbol.DollarSign };
+        Dictionary<string, bool> lineBreaksNeeded = new Dictionary<string, bool>();
 
         private List<string> decorations = null;
 
@@ -64,6 +68,7 @@ namespace ABC
             if (voice != null) return;
             
             voice = new Voice(defaultVoiceIdentifier);
+            lineBreaksNeeded[voice.identifier] = false;
             
             if (timeSignature != null)
                 voice.items.Add(new TimeSignature(timeSignature));
@@ -131,6 +136,8 @@ namespace ABC
         void ParseBar()
         {
             EnsureVoice();
+            CheckForLineBreak();
+
             Bar.Kind kind;
             int endRepeatCount = 0, startRepeatCount = 0;
             string repeatStr;
@@ -236,9 +243,30 @@ namespace ABC
                 }
 
                 UpdateBrokenRhythm();
+                EvaluateLineBreak();
 
                 if (decorations != null)
                     throw new ParseException($"Invalid decoration near {lineNum}, {index}");
+            }
+
+
+        }
+
+        void EvaluateLineBreak()
+        {
+            if (voice == null)
+                return;
+
+            if (index == currentLine.Length)
+            {
+                lineBreaksNeeded[voice.identifier] |= lineBreakSymbols.Contains(LineBreakSymbol.EOL);
+            }
+            else if (currentLine[index] == '$')
+            {
+                index += 1;
+
+                if (lineBreakSymbols.Contains(LineBreakSymbol.DollarSign))
+                    lineBreaksNeeded[voice.identifier] = true;
             }
         }
 
@@ -339,9 +367,26 @@ namespace ABC
             }
         }
 
+        void CheckForLineBreak()
+        {
+            if (voice == null)
+                return;
+
+            bool lineBreakNeeded = false;
+            lineBreaksNeeded.TryGetValue(voice.identifier, out lineBreakNeeded);
+
+            if (lineBreakNeeded)
+            {
+                voice.items.Add(new LineBreak());
+                lineBreaksNeeded[voice.identifier] = false;
+            }
+        }
+
         void ParseChord()
         {
             EnsureVoice();
+
+            CheckForLineBreak();
 
             index += 1;
             var notes = new List<Note>();
@@ -390,6 +435,8 @@ namespace ABC
 
         void ReadRest()
         {
+            CheckForLineBreak();
+
             if (char.IsLower(currentLine[index]))
             {
                 var rest = new Rest();
@@ -471,6 +518,7 @@ namespace ABC
 
         Note ReadFullNote()
         {
+            CheckForLineBreak();
             var note = ReadBaseNote();
             ParseLengthValues(note);
             SetDecorationsForItem(note);
@@ -543,6 +591,10 @@ namespace ABC
                 case 'M':
                     ParseTimeSignature();
                     break;
+
+                case 'I':
+                    ParseInstruction();
+                    break;
             }
         }
 
@@ -581,6 +633,59 @@ namespace ABC
             unitNoteLength = length;
         }
 
+        void ParseLinebreakInstruction()
+        {
+            if (parsingTuneBody)
+                throw new ParseException("Line break instructions are not allowed when parsing tune body");
+
+            lineBreakSymbols.Clear();
+            bool eol = SkipWhiteSpace();
+            
+            while (!eol)
+            {
+                eol = ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out var symbolStr);
+
+                switch(symbolStr)
+                {
+                    case "<EOL>":
+                        lineBreakSymbols.Add(LineBreakSymbol.EOL);
+                        break;
+
+                    case "<none>":
+                        lineBreakSymbols.Add(LineBreakSymbol.None);
+                        break;
+
+                    case "$":
+                        lineBreakSymbols.Add(LineBreakSymbol.DollarSign);
+                        break;
+
+                    default:
+                        throw new ParseException($"Unsupported Line Break Symbol: {symbolStr}");
+                }
+
+                eol = SkipWhiteSpace();
+            }
+        }
+
+        void ParseInstruction()
+        {
+            index += 2;
+            SkipWhiteSpace();
+
+            int instructionStart = index;
+            ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out var instruction);
+
+            instruction = instruction.ToLower();
+            switch (instruction)
+            {
+                case "linebreak":
+                    ParseLinebreakInstruction();
+                    break;
+                default:
+                    throw new ParseException($"Unsupported instruction {instruction} at {lineNum}, {index}");
+            }
+        }
+
         void ParseReferenceNumber()
         {
             string referenceNumberStr = currentLine.Substring(index + 2);
@@ -617,6 +722,7 @@ namespace ABC
             if (voice == null)
             {
                 voice = new Voice(identifier);
+                lineBreaksNeeded[voice.identifier] = false;
 
                 if (timeSignature != null)
                     voice.items.Add(new TimeSignature(timeSignature));

@@ -41,6 +41,7 @@ namespace TestABC
         public void DivideNoteLengthWithNumber()
         {
             var abc = @"
+                I:linebreak <none>
                 [L:1] C C/2 C/4 C/8 C/16
                 [L:1/2] C/2 C/4 C/8";
 
@@ -69,6 +70,7 @@ namespace TestABC
         public void DivideNoteLengthWithShorthand()
         {
             var abc = @"
+                I:linebreak <none>
                 [L:1] C C/ C// C/// C////
                 [L:1/2] C/ C// C///";
 
