@@ -19,8 +19,11 @@ namespace ABC
         public Clef clef { get; set; } = Clef.Treble;
         public List<Item> items { get; } = new List<Item>();
 
-        /// <summary>The initial key signature for this voice.  Changes further on in the tune will be represented with <see cref="Key"/> items.</summary>
+        /// <summary>The initial key signature for this voice.  Changes to this value will be represented with <see cref="Key"/> items.</summary>
         public KeySignature initialKey { get; set; } = KeySignature.CMajor;
+
+        /// <summary>The initial time signature for this voice.  Changes to this value will be represented with <see cref="TimeSignature"/> items.</summary>
+        public string initialTimeSignature { get; set; } = string.Empty;
 
         public Voice(string identifier)
         {

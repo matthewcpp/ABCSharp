@@ -21,36 +21,33 @@ namespace TestABC
             Assert.AreEqual(1, tune.voices.Count);
             var voice = tune.voices[0];
             
-            Assert.AreEqual(2, voice.items.Count);
-            var timeSignatureItem = voice.items[0] as TimeSignature;
-            
-            Assert.IsNotNull(timeSignatureItem);
-            Assert.AreEqual(expectedTimeSignature, timeSignatureItem.value);
+            Assert.AreEqual(expectedTimeSignature, voice.initialTimeSignature);
         }
 
         [TestMethod]
         public void SetsTimeSignatureFromTuneBodyForAllVoices()
         {
-            var abc = @"
-            M:4/4
-            [V:1] CCCC
-            [V:2] CCCC
-            M:2/2
+            var expectedInitialTimeSignature = "4/4";
+            var expectedTimeSignatureItem = "2/2";
+            
+            var abc = $@"
+            M:{expectedInitialTimeSignature}
+            [V:1] C
+            [V:2] C
+            M:{expectedTimeSignatureItem}
             ";
-            
+
             var tune = Tune.Load(abc);
-            
+
             Assert.AreEqual(2, tune.voices.Count);
             foreach (var voice in tune.voices)
             {
-                Assert.AreEqual(6, voice.items.Count);
-                var defaultTimeSignature = voice.items[0] as TimeSignature;
-                Assert.IsNotNull(defaultTimeSignature);
-                Assert.AreEqual("4/4", defaultTimeSignature.value);
+                Assert.AreEqual(expectedInitialTimeSignature, voice.initialTimeSignature);
 
-                var cutTimeItem = voice.items[5] as TimeSignature;
-                Assert.IsNotNull(cutTimeItem);
-                Assert.AreEqual("2/2", cutTimeItem.value);
+                Assert.AreEqual(2, voice.items.Count);
+                var defaultTimeSignature = voice.items[1] as TimeSignature;
+                Assert.IsNotNull(defaultTimeSignature);
+                Assert.AreEqual(expectedTimeSignatureItem, defaultTimeSignature.value);
             }
         }
 
@@ -59,21 +56,29 @@ namespace TestABC
         {
             var commonTime = "4/4";
             var cutTime = "2/2";
-            var abc = $"M:{commonTime}\nC[M:{cutTime}]D";
+            var abc = $"M:{commonTime}\nC[M:{cutTime}]";
             var tune = Tune.Load(abc);
             
             Assert.AreEqual(1, tune.voices.Count);
             var voice = tune.voices[0];
             
-            Assert.AreEqual(4, voice.items.Count);
-            var commonTimeItem = voice.items[0] as TimeSignature;
-            
-            Assert.IsNotNull(commonTimeItem);
-            Assert.AreEqual(commonTime, commonTimeItem.value);
+            Assert.AreEqual(commonTime, voice.initialTimeSignature);
+            Assert.AreEqual(2, voice.items.Count);
 
-            var cutTimeItem = voice.items[2] as TimeSignature;
-            Assert.IsNotNull(cutTimeItem);
-            Assert.AreEqual(cutTime, cutTimeItem.value);
+            var timeSignature = voice.items[1] as TimeSignature;
+            Assert.IsNotNull(timeSignature);
+            Assert.AreEqual(cutTime, timeSignature.value);
+        }
+
+        [TestMethod]
+        public void FreeMeter()
+        {
+            var abc = "M: none\nC";
+
+            var tune = Tune.Load(abc);
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+            Assert.AreEqual(string.Empty, voice.initialTimeSignature);
         }
     }
 }

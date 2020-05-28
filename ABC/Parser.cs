@@ -69,11 +69,9 @@ namespace ABC
             if (voice != null) return;
             
             voice = new Voice(defaultVoiceIdentifier);
+            voice.initialTimeSignature = timeSignature;
             lineBreaksNeeded[voice.identifier] = false;
-            
-            if (timeSignature != null)
-                voice.items.Add(new TimeSignature(timeSignature));
-            
+
             tune.voices.Add(voice);
         }
 
@@ -709,12 +707,25 @@ namespace ABC
         void ParseTimeSignature()
         {
             index += 2;
-            timeSignature = currentLine.Substring(index).Trim();
+            string timeSignatureStr = currentLine.Substring(index).Trim().ToLower();
 
-            if (parsingTuneBody)
+            if (timeSignatureStr == "none")
+                timeSignatureStr = string.Empty;
+
+            if (parsingInlineinformationField)
             {
+                voice.items.Add(new TimeSignature(timeSignatureStr));
+            }
+            else
+            {
+                timeSignature = timeSignatureStr;
                 foreach (var v in tune.voices)
-                    v.items.Add(new TimeSignature(timeSignature));
+                {
+                    if (v.items.Count > 0)
+                        v.items.Add(new TimeSignature(timeSignature));
+                    else
+                        v.initialTimeSignature = timeSignature;
+                }
             }
         }
 
@@ -829,10 +840,8 @@ namespace ABC
             if (voice == null)
             {
                 voice = new Voice(identifier);
+                voice.initialTimeSignature = timeSignature;
                 lineBreaksNeeded[voice.identifier] = false;
-
-                if (timeSignature != null)
-                    voice.items.Add(new TimeSignature(timeSignature));
 
                 tune.voices.Add(voice);
             }
