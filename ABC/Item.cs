@@ -15,7 +15,8 @@ namespace ABC
             Note,
             Rest,
             TimeSignature,
-            LineBreak
+            LineBreak,
+            Key
         }
 
         public Type type { get; }
