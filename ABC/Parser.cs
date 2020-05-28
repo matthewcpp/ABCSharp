@@ -23,6 +23,7 @@ namespace ABC
         int index = 0;
         string currentLine;
         private bool parsingTuneBody = false;
+        private bool parsingInlineinformationField = false;
 
         private enum BrokenRhythm { None, DotHalf, HalfDot }
 
@@ -127,7 +128,9 @@ namespace ABC
             currentLine = inlineInformationField;
             index = 0;
 
+            parsingInlineinformationField = true;
             ParseInformationField();
+            parsingInlineinformationField = false;
 
             currentLine = savedCurrentLine;
             index = savedIndex;
@@ -597,10 +600,109 @@ namespace ABC
                 case 'M':
                     ParseTimeSignature();
                     break;
+                
+                case 'K':
+                    ParseKeySignature();
+                    break;
 
                 case 'I':
                     ParseInstruction();
                     break;
+            }
+        }
+
+        void ParseKeySignature()
+        {
+            index += 2;
+            bool eol = SkipWhiteSpace();
+
+            if (eol)
+            {
+                AddKeySignature(KeySignature.None);
+                return;
+            }
+
+            if (currentLine.Substring(index).Trim().ToLower() == "none")
+            {
+                AddKeySignature(KeySignature.None);
+                return;
+            }
+
+            // get the key name
+            string keyName = currentLine.Substring(index++, 1);
+            string keyMode = "Major"; // default per spec
+            string line = string.Empty;
+
+            // check for a sharp or flat
+            if (index < currentLine.Length)
+            {
+                if (currentLine[index] == '#')
+                {
+                    keyName += "Sharp";
+                    index += 1;
+                }
+                else if (currentLine[index] == 'b')
+                {
+                    keyName += "Flat";
+                    index += 1;
+                }
+            }
+
+            // rest of the line ignores whitespace and is case insensitive
+            if (index < currentLine.Length)
+            {
+                for (int i = index; i < currentLine.Length; i++)
+                {
+                    if (char.IsWhiteSpace(currentLine[i])) continue;
+                    line += char.ToLower(currentLine[i]);
+                }
+
+                // check the mode.
+                if (line.Length > 3)
+                    line = line.Substring(0, 3);
+
+                if (line.Length > 0)
+                {
+                    if (line == "maj")
+                        keyMode = "Major";
+                    else if (line == "m" || line == "min")
+                        keyMode = "Minor";
+                    else
+                        throw new ParseException($"Unexpected Key Signature mode: {line} near {lineNum}, {index}");
+                }
+            }
+            
+            keyName += keyMode;
+            index = currentLine.Length;
+
+            try
+            {
+                var keySignature = (KeySignature) Enum.Parse(typeof(KeySignature), keyName);
+                AddKeySignature(keySignature);
+            }
+            catch (ArgumentException)
+            {
+                throw new ParseException($"Invalid Key Signature value: {keyName} near {lineNum}, {index}");
+            }
+        }
+
+        void AddKeySignature(KeySignature keySignature)
+        {
+            EnsureVoice();
+
+            if (parsingInlineinformationField)
+            {
+                voice.items.Add(new Key(keySignature));
+            }
+            else
+            {
+                foreach (var voice in tune.voices)
+                {
+                    if (voice.items.Count == 0)
+                        voice.initialKey = keySignature;
+                    else
+                        voice.items.Add(new Key(keySignature));
+                }
             }
         }
 
@@ -678,7 +780,6 @@ namespace ABC
             index += 2;
             SkipWhiteSpace();
 
-            int instructionStart = index;
             ReadUntil((char c) => { return char.IsWhiteSpace(c); }, out var instruction);
 
             instruction = instruction.ToLower();
