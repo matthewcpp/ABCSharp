@@ -333,10 +333,9 @@ namespace ABC
                 halfItem = itemA;
             }
             
-            dotItem.length = unitNoteLength;
             dotItem.dotCount = brokenRhythmCount;
 
-            var duration = ParserUtil.lengthDurations[unitNoteLength] * 1.0f / (1 << brokenRhythmCount);
+            var duration = ParserUtil.lengthDurations[halfItem.length] * (1.0f / (1 << brokenRhythmCount));
             ParserUtil.ParseDuration(duration, out Length l, out int dots);
             halfItem.length = l;
             halfItem.dotCount = dots;
@@ -707,9 +706,9 @@ namespace ABC
         void ParseTimeSignature()
         {
             index += 2;
-            string timeSignatureStr = currentLine.Substring(index).Trim().ToLower();
+            string timeSignatureStr = currentLine.Substring(index).Trim();
 
-            if (timeSignatureStr == "none")
+            if (timeSignatureStr.ToLower() == "none")
                 timeSignatureStr = string.Empty;
 
             if (parsingInlineinformationField)

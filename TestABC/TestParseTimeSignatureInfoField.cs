@@ -71,6 +71,25 @@ namespace TestABC
         }
 
         [TestMethod]
+        public void ParseSymbols()
+        {
+            var symbols = new List<string>()
+            {
+                "C", "C|"
+            };
+
+            foreach (var symbol in symbols)
+            {
+                var abc = $"M:{symbol}\nC";
+                var tune = Tune.Load(abc);
+
+                Assert.AreEqual(1, tune.voices.Count);
+                var voice = tune.voices[0];
+                Assert.AreEqual(symbol, voice.initialTimeSignature, symbol);
+            }
+        }
+
+        [TestMethod]
         public void FreeMeter()
         {
             var abc = "M: none\nC";

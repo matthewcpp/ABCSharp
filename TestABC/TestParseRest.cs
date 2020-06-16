@@ -90,6 +90,42 @@ namespace TestABC
         }
 
         [TestMethod]
+        public void ParseBrokenRhythm()
+        {
+            var tests = new List<string>()
+            {
+                "z2 > z2", "z > z", "z/2 > z/2"
+            };
+
+            var expectedValues = new List<ValueTuple<Length, Length>>()
+            {
+                (Length.Half, Length.Quarter), (Length.Quarter, Length.Eighth), (Length.Eighth, Length.Sixteenth)
+            };
+
+            Assert.AreEqual(tests.Count, expectedValues.Count);
+
+            for (int i = 0; i < tests.Count; i++)
+            {
+                var abc = $"X:1\nL:1/4\nM:C\nK:C\n{tests[i]}";
+                var tune = Tune.Load(abc);
+
+                Assert.AreEqual(1, tune.voices.Count);
+                var voice = tune.voices[0];
+
+                Assert.AreEqual(2, voice.items.Count);
+
+                var rest1 = voice.items[0] as Rest;
+                Assert.IsNotNull(rest1);
+
+                var rest2 = voice.items[1] as Rest;
+                Assert.IsNotNull(rest2);
+
+                Assert.AreEqual(expectedValues[i].Item1, rest1.length);
+                Assert.AreEqual(expectedValues[i].Item2, rest2.length);
+            }
+        }
+
+        [TestMethod]
         public void CannotAppearInChords()
         {
             var abc = "[CEx]";
