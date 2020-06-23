@@ -586,6 +586,10 @@ namespace ABC
                     ParseTitle();
                     break;
 
+                case 'C':
+                    ParseComposer();
+                    break;
+
                 case 'V':
                     ParseVoiceHeader();
                     break;
@@ -734,7 +738,16 @@ namespace ABC
                 throw new ParseException($"Title should not be set in tune body at {lineNum}, {index}");
             
             index += 2;
-            tune.header.title = currentLine.Substring(index);
+            tune.header.title = currentLine.Substring(index).Trim();
+        }
+
+        void ParseComposer()
+        {
+            if (parsingTuneBody)
+                throw new ParseException($"Composer should not be set in tune body at {lineNum}, {index}");
+
+            index += 2;
+            tune.header.composer = currentLine.Substring(index).Trim();
         }
 
         void ParseUnitNoteLengthInformation()
@@ -805,7 +818,7 @@ namespace ABC
 
         void ParseReferenceNumber()
         {
-            string referenceNumberStr = currentLine.Substring(index + 2);
+            var referenceNumberStr = currentLine.Substring(index + 2);
             if (uint.TryParse(referenceNumberStr, out uint referenceNumber))
                 tune.header.referenceNumber = referenceNumber;
             else

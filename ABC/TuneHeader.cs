@@ -8,5 +8,6 @@ namespace ABC
     {
         public uint referenceNumber { get; set; } = 0;
         public string title { get; set; }
+        public string composer { get; set; }
     }
 }
