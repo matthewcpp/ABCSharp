@@ -734,7 +734,7 @@ namespace ABC
                 throw new ParseException($"Title should not be set in tune body at {lineNum}, {index}");
             
             index += 2;
-            tune.title = currentLine.Substring(index);
+            tune.header.title = currentLine.Substring(index);
         }
 
         void ParseUnitNoteLengthInformation()
@@ -807,7 +807,7 @@ namespace ABC
         {
             string referenceNumberStr = currentLine.Substring(index + 2);
             if (uint.TryParse(referenceNumberStr, out uint referenceNumber))
-                tune.referenceNumber = referenceNumber;
+                tune.header.referenceNumber = referenceNumber;
             else
                 throw new ParseException($"Error Parsing Reference number: {referenceNumberStr} at {lineNum},{index + 2}");
         }

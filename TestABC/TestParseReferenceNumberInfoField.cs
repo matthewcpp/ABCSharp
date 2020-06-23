@@ -15,10 +15,10 @@ namespace TestABC
         public void ParseReferenceNumber()
         {
             var tune = Tune.Load("X:100");
-            Assert.AreEqual(100U, tune.referenceNumber);
+            Assert.AreEqual(100U, tune.header.referenceNumber);
 
             tune = Tune.Load("X: 100");
-            Assert.AreEqual(100U, tune.referenceNumber);
+            Assert.AreEqual(100U, tune.header.referenceNumber);
         }
 
         [TestMethod]
