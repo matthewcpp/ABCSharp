@@ -11,6 +11,7 @@ namespace TestABC
     [TestClass]
     public class TestParseTuneHeaderInfoFields
     {
+        [TestMethod]
         public void TitleInfoField()
         {
             var expectedTitle = "Hello World";
@@ -34,10 +35,10 @@ namespace TestABC
         public void ParseReferenceNumber()
         {
             var tune = Tune.Load("X:100");
-            Assert.AreEqual(100U, tune.header.referenceNumber);
+            Assert.AreEqual("100", tune.header.referenceNumber);
 
             tune = Tune.Load("X: 100");
-            Assert.AreEqual(100U, tune.header.referenceNumber);
+            Assert.AreEqual("100", tune.header.referenceNumber);
         }
 
         [TestMethod]
@@ -61,7 +62,6 @@ namespace TestABC
                 var abc = $"CDEF | GABc\n{infoField}";
                 Assert.ThrowsException<ParseException>(() => { Tune.Load(abc); }, infoField);
             }
-
         }
 
         [TestMethod]
@@ -79,6 +79,17 @@ namespace TestABC
                 var abc = $"CDEF | [{infoField}] GABc";
                 Assert.ThrowsException<ParseException>(() => { Tune.Load(abc); }, infoField);
             }
+        }
+
+        [TestMethod]
+        public void HeaderFieldsNullIfNotSet()
+        {
+            var abc = "X:1\nK:C\nCCCC|";
+            var tune = Tune.Load(abc);
+            
+            Assert.IsNotNull(tune.header.referenceNumber);
+            Assert.IsNull(tune.header.title);
+            Assert.IsNull(tune.header.composer);
         }
     }
 }

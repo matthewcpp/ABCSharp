@@ -739,7 +739,7 @@ namespace ABC
             {
                 case 'X':
                     if (uint.TryParse(headerValue, out uint referenceNumber))
-                        tune.header.referenceNumber = referenceNumber;
+                        tune.header.referenceNumber = referenceNumber.ToString();
                     else
                         throw new ParseException($"Error Parsing Reference number: {headerValue} at {lineNum},{index + 2}");
                     break;
