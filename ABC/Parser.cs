@@ -576,16 +576,14 @@ namespace ABC
 
         void ParseInformationField()
         {
+            if (Elements.tuneHeaderInfoCharacters.Contains(currentLine[index]))
+            {
+                ParseTuneHeaderInfo();
+                return;
+            }
+
             switch (currentLine[index])
             {
-                case 'X':
-                    ParseReferenceNumber();
-                    break;
-
-                case 'T':
-                    ParseTitle();
-                    break;
-
                 case 'V':
                     ParseVoiceHeader();
                     break;
@@ -728,13 +726,31 @@ namespace ABC
             }
         }
 
-        void ParseTitle()
+        void ParseTuneHeaderInfo()
         {
+            var headerField = currentLine[index];
+
             if (parsingTuneBody)
-                throw new ParseException($"Title should not be set in tune body at {lineNum}, {index}");
-            
+                throw new ParseException($"Cannot Set header info field '{headerField}' in tune body at {lineNum}, {index}");
+
             index += 2;
-            tune.title = currentLine.Substring(index);
+            var headerValue = currentLine.Substring(index).Trim();
+            switch (headerField)
+            {
+                case 'X':
+                    if (uint.TryParse(headerValue, out uint referenceNumber))
+                        tune.header.referenceNumber = referenceNumber.ToString();
+                    else
+                        throw new ParseException($"Error Parsing Reference number: {headerValue} at {lineNum},{index + 2}");
+                    break;
+                case 'T':
+                    tune.header.title = headerValue;
+                    break;
+
+                case 'C':
+                    tune.header.composer = headerValue;
+                    break;
+            }
         }
 
         void ParseUnitNoteLengthInformation()
@@ -801,15 +817,6 @@ namespace ABC
                 default:
                     throw new ParseException($"Unsupported instruction {instruction} at {lineNum}, {index}");
             }
-        }
-
-        void ParseReferenceNumber()
-        {
-            string referenceNumberStr = currentLine.Substring(index + 2);
-            if (uint.TryParse(referenceNumberStr, out uint referenceNumber))
-                tune.referenceNumber = referenceNumber;
-            else
-                throw new ParseException($"Error Parsing Reference number: {referenceNumberStr} at {lineNum},{index + 2}");
         }
 
         private bool ReadModifierValue(out string result)

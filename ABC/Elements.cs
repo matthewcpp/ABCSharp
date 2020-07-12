@@ -34,6 +34,7 @@ namespace ABC
         };
         
         public static readonly HashSet<char> barCharacters = new HashSet<char>() {'|', '[', ']'};
+        public static readonly HashSet<char> tuneHeaderInfoCharacters = new HashSet<char>() { 'X', 'T', 'C' };
 
         public static bool IsStartOfBarItem(char ch)
         {

@@ -7,8 +7,8 @@ namespace ABC
 {
     public class Tune
     {
-        public uint referenceNumber { get; set; } = 1;
-        public string title { get; set; }
+        public TuneHeader header { get; } = new TuneHeader();
+        public string title { get { return header.title; } }
         public List<Voice> voices { get; } = new List<Voice>();
         
         /// <summary>
