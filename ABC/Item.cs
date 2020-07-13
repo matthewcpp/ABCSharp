@@ -10,6 +10,7 @@ namespace ABC
         public enum Type
         {
             Bar,
+            CustomBar,
             Chord,
             MultiMeasureRest,
             Note,

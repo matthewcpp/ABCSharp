@@ -9,18 +9,29 @@ namespace ABC
         public enum Kind
         {
             Line,
-            ThinThinDoubleBar,
-            ThinThickDoubleBar,
-            ThickThinDoubleBar
+            DoubleLine,
+            FinalBar,
+            RepeatStart,
+            RepeatEnd,
+            RepeatEndStart,
+            StartBar
         }
 
         public Kind kind { get;}
-        public int startRepeatCount { get; set; } = 0;
-        public int endRepeatCount { get; set; } = 0;
 
         public Bar(Kind t) : base(Item.Type.Bar)
         {
             kind = t;
+        }
+    }
+
+    public class CustomBar : Item
+    {
+        public string str { get; set; }
+
+        public CustomBar(string str) : base(Item.Type.CustomBar)
+        {
+            this.str = str;
         }
     }
 }

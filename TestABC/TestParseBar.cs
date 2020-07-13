@@ -11,123 +11,53 @@ namespace TestABC
     {
 
         [TestMethod]
-        public void BarLine()
+        public void StandardBarTypes()
         {
-            var tune = Tune.Load("|");
-
-            Assert.AreEqual(1, tune.voices.Count);
-            var voice = tune.voices[0];
-
-            Assert.AreEqual(1, voice.items.Count);
-            var barItem = voice.items[0] as Bar;
-            Assert.IsNotNull(barItem);
-
-            Assert.AreEqual(Bar.Kind.Line, barItem.kind);
-        }
-
-        [TestMethod]
-        public void ThinThinLine()
-        {
-            var tune = Tune.Load("c||[cEG]");
-
-            Assert.AreEqual(1, tune.voices.Count);
-            var voice = tune.voices[0];
-
-            Assert.AreEqual(3, voice.items.Count);
-
-            Assert.IsNotNull(voice.items[0] as Note);
-            var bar = voice.items[1] as Bar;
-            Assert.IsNotNull(bar);
-            Assert.AreEqual(Bar.Kind.ThinThinDoubleBar, bar.kind);
-
-            Assert.IsNotNull(voice.items[2] as Chord);
-        }
-
-        [TestMethod]
-        public void ThinThickDoubleLine()
-        {
-            var tune = Tune.Load("[|[cEG]c");
-
-            Assert.AreEqual(1, tune.voices.Count);
-            var voice = tune.voices[0];
-
-            Assert.AreEqual(3, voice.items.Count);
-
-            var bar = voice.items[0] as Bar;
-            Assert.IsNotNull(bar);
-            Assert.AreEqual(Bar.Kind.ThickThinDoubleBar, bar.kind);
-
-            Assert.IsNotNull(voice.items[1] as Chord);
-            Assert.IsNotNull(voice.items[2] as Note);
-        }
-        
-        [TestMethod]
-        public void ThickThinDoubleLine()
-        {
-            var tune = Tune.Load("c[cEG]|]");
-
-            Assert.AreEqual(1, tune.voices.Count);
-            var voice = tune.voices[0];
-
-            Assert.AreEqual(3, voice.items.Count);
-
-            var bar = voice.items[2] as Bar;
-            Assert.IsNotNull(bar);
-            Assert.AreEqual(Bar.Kind.ThinThickDoubleBar, bar.kind);
-
-            Assert.IsNotNull(voice.items[0] as Note);
-            Assert.IsNotNull(voice.items[1] as Chord);
-        }
-
-        [TestMethod]
-        public void StartRepeatSection()
-        {
-            var tests = new List<Tuple<string, Bar.Kind, int>>()
+            var standardBars = new Dictionary<string, Bar.Kind>()
             {
-                Tuple.Create("|:ccc", Bar.Kind.Line, 1),
-                Tuple.Create("[|::ccc", Bar.Kind.ThickThinDoubleBar, 2),
-                Tuple.Create("||:::ccc", Bar.Kind.ThinThinDoubleBar, 3),
+                {"|", Bar.Kind.Line}, {"||", Bar.Kind.DoubleLine}, 
+                {"[|", Bar.Kind.StartBar}, {"|]", Bar.Kind.FinalBar},
+                {"|:", Bar.Kind.RepeatStart}, {":|", Bar.Kind.RepeatEnd}, {":|:", Bar.Kind.RepeatEndStart}
             };
 
-            foreach (var test in tests)
+            foreach (var standardBar in standardBars)
             {
-                var tune = Tune.Load(test.Item1);
+                var abc = $"X:1\nL:1/4\nK:C\nCCCC{standardBar.Key}";
+                var tune = Tune.Load(abc);
                 
                 Assert.AreEqual(1, tune.voices.Count);
                 var voice = tune.voices[0];
                 
-                Assert.AreEqual(4, voice.items.Count);
-                var bar = voice.items[0] as Bar;
-                Assert.IsNotNull(bar);
+                Assert.AreEqual(5, voice.items.Count);
+                var bar = voice.items[4] as Bar;
                 
-                Assert.AreEqual(test.Item2, bar.kind);
-                Assert.AreEqual(test.Item3, bar.startRepeatCount);
+                Assert.IsNotNull(bar);
+                Assert.AreEqual(standardBar.Value, bar.kind, standardBar.Key);
             }
         }
         
-        [TestMethod]
-        public void EndRepeatSection()
-        {
-            var tests = new List<Tuple<string, Bar.Kind, int>>()
-            {
-                Tuple.Create("ccc:|", Bar.Kind.Line, 1),
-                Tuple.Create("ccc::|]", Bar.Kind.ThinThickDoubleBar, 2),
-                Tuple.Create("ccc:::||", Bar.Kind.ThinThinDoubleBar, 3),
-            };
 
-            foreach (var test in tests)
+        [TestMethod]
+        public void TestCustomBar()
+        {
+            var customBars = new List<string>()
             {
-                var tune = Tune.Load(test.Item1);
+                "[|:::", "|[|"
+            };
+            
+            foreach (var customBar in customBars)
+            {
+                var abc = $"X:1\nL:1/4\nK:C\nCCCC{customBar}";
+                var tune = Tune.Load(abc);
                 
                 Assert.AreEqual(1, tune.voices.Count);
                 var voice = tune.voices[0];
                 
-                Assert.AreEqual(4, voice.items.Count);
-                var bar = voice.items[3] as Bar;
-                Assert.IsNotNull(bar);
+                Assert.AreEqual(5, voice.items.Count);
+                var bar = voice.items[4] as CustomBar;
                 
-                Assert.AreEqual(test.Item2, bar.kind);
-                Assert.AreEqual(test.Item3, bar.endRepeatCount);
+                Assert.IsNotNull(bar);
+                Assert.AreEqual(customBar, bar.str, customBar);
             }
         }
     }

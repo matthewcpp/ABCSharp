@@ -36,6 +36,13 @@ namespace ABC
         public static readonly HashSet<char> barCharacters = new HashSet<char>() {'|', '[', ']'};
         public static readonly HashSet<char> tuneHeaderInfoCharacters = new HashSet<char>() { 'X', 'T', 'C' };
 
+        public static readonly Dictionary<string, Bar.Kind> standardBarTypes = new Dictionary<string, Bar.Kind>()
+        {
+            {"|", Bar.Kind.Line}, {"||", Bar.Kind.DoubleLine}, 
+            {"[|", Bar.Kind.StartBar}, {"|]", Bar.Kind.FinalBar},
+            {"|:", Bar.Kind.RepeatStart}, {":|", Bar.Kind.RepeatEnd}, {":|:", Bar.Kind.RepeatEndStart}
+        };
+        
         public static bool IsStartOfBarItem(char ch)
         {
             return barCharacters.Contains(ch) || ch == ':';

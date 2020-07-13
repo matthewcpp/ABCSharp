@@ -134,68 +134,53 @@ namespace ABC
             index = savedIndex;
         }
 
-        static readonly List<char> thinBarChars = new List<char>() { '|', ']'};
-        static readonly List<char> thickBarChars = new List<char>() { '[', '|' };
+        bool ReadBarCharacters(out string str)
+        {
+            string result = string.Empty;
+            while (true)
+            {
+                if (index >= currentLine.Length)
+                    break;
+
+                char ch = currentLine[index];
+
+                if (!Elements.barCharacters.Contains(ch))
+                    break;
+
+                // handle case where custom bar touches chord eg '|[[CEG]'
+                if (ch == '[' && index < currentLine.Length - 1 && Elements.IsStartOfNoteStream(currentLine[index + 1]))
+                    break;
+                
+                result += ch;
+                index += 1;
+            }
+
+            str = result;
+            return index >= currentLine.Length;
+        }
 
         void ParseBar()
         {
             EnsureVoice();
             CheckForLineBreak();
+            
+            ReadUntil((char c) => c != ':', out var firstRepeatCharStr);
+            ReadBarCharacters(out var barCharStr);
+            ReadUntil((char c) => c != ':', out var secondCharStr);
+            string barString = firstRepeatCharStr + barCharStr + secondCharStr;
 
-            Bar.Kind kind;
-            int endRepeatCount = 0, startRepeatCount = 0;
-            string repeatStr;
-
-            if (currentLine[index] == ':')
+            Item barItem;
+            try
             {
-                ReadUntil((char c) => { return c != ':'; }, out repeatStr);
-                endRepeatCount = repeatStr.Length;
+                barItem = new Bar(Elements.standardBarTypes[barString]);
+            }
+            catch (Exception e)
+            {
+                barItem = new CustomBar(barString);
             }
 
-            string barStr = new string(currentLine[index], 1);
-            index += 1;
-
-            if (index < currentLine.Length)
-            {
-                List<char> characters = barStr[0] == '|' ? thinBarChars : thickBarChars;
-                if (characters.Contains(currentLine[index]))
-                {
-                    barStr += currentLine[index];
-                    index += 1;
-                }
-            }
-
-            ReadUntil((char c) => { return c != ':'; }, out repeatStr);
-            startRepeatCount = repeatStr.Length;
-            
-            switch (barStr)
-            {
-                case "|":
-                    kind = Bar.Kind.Line;
-                    break;
-            
-                case "||":
-                    kind = Bar.Kind.ThinThinDoubleBar;
-                    break;
-            
-                case "[|":
-                    kind = Bar.Kind.ThickThinDoubleBar;
-                    break;
-            
-                case "|]":
-                    kind = Bar.Kind.ThinThickDoubleBar;
-                    break;
-            
-                default:
-                    throw new ParseException($"Unsupported Bar specification at {lineNum}, {index}");
-            }
-
-            var bar = new Bar(kind);
-            bar.startRepeatCount = startRepeatCount;
-            bar.endRepeatCount = endRepeatCount;
-            
-            SetDecorationsForItem(bar);
-            voice.items.Add(bar);
+            SetDecorationsForItem(barItem);
+            voice.items.Add(barItem);
             beam = false;
         }
 
@@ -378,8 +363,7 @@ namespace ABC
             if (voice == null)
                 return;
 
-            bool lineBreakNeeded = false;
-            lineBreaksNeeded.TryGetValue(voice.identifier, out lineBreakNeeded);
+            lineBreaksNeeded.TryGetValue(voice.identifier, out bool lineBreakNeeded);
 
             if (lineBreakNeeded)
             {
@@ -457,12 +441,11 @@ namespace ABC
                 var rest = new MultiMeasureRest();
                 rest.isVisible = currentLine[index] == 'Z';
                 index += 1;
-                ReadUntil((char c) => { return !char.IsDigit(c); }, out string measureCountStr);
+                ReadUntil((char c) => !char.IsDigit(c), out string measureCountStr);
 
                 if (measureCountStr.Length > 0)
                 {
-                    int measureCount = 0;
-                    if (int.TryParse(measureCountStr, out measureCount))
+                    if (int.TryParse(measureCountStr, out int measureCount))
                         rest.count = measureCount;
                     else
                         throw new ParseException($"Unable to parse multi measure rest count at {lineNum}, {index - measureCountStr.Length}");

@@ -14,7 +14,7 @@ Supported Features:
     - Instructions
         - Linebreak: `<EOL>`, `<none>`, `$`
 - Rests (individual and multi-measure)
-- Bar (single and double lines) repeat indicators
+- Bar: Single Line, Double Line, Repeat Start, Repeat End, Repeat End/Start, Start / End Bar, Additional custom bars as per ABC Spec
 - Multiple Voices: `clef` (treble, bass) and `name` modifiers
 
 Usage example:
@@ -24,6 +24,6 @@ var tune = Tune.load(abc);
 
 foreach (var voice in tune.voices)
 {
-	Console.WriteLine($"Voice {voice.name} ({voice.clef}): {voice.items.Count} items.");
+    Console.WriteLine($"Voice {voice.name} ({voice.clef}): {voice.items.Count} items.");
 }
 ```
