@@ -10,11 +10,11 @@ namespace ABC
         {
             Line,
             DoubleLine,
-            FinalBar,
+            Final,
             RepeatStart,
             RepeatEnd,
             RepeatEndStart,
-            StartBar
+            Start
         }
 
         public Kind kind { get;}

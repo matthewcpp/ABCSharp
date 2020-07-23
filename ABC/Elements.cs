@@ -39,8 +39,9 @@ namespace ABC
         public static readonly Dictionary<string, Bar.Kind> standardBarTypes = new Dictionary<string, Bar.Kind>()
         {
             {"|", Bar.Kind.Line}, {"||", Bar.Kind.DoubleLine}, 
-            {"[|", Bar.Kind.StartBar}, {"|]", Bar.Kind.FinalBar},
-            {"|:", Bar.Kind.RepeatStart}, {":|", Bar.Kind.RepeatEnd}, {":|:", Bar.Kind.RepeatEndStart}
+            {"[|", Bar.Kind.Start}, {"|]", Bar.Kind.Final},
+            {"|:", Bar.Kind.RepeatStart}, {":|", Bar.Kind.RepeatEnd}, 
+            {":|:", Bar.Kind.RepeatEndStart}, {":||:", Bar.Kind.RepeatEndStart}
         };
         
         public static bool IsStartOfBarItem(char ch)
