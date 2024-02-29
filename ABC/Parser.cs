@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Diagnostics;
 
 namespace ABC
 {
@@ -37,6 +38,13 @@ namespace ABC
         private List<LineBreakSymbol> lineBreakSymbols = new List<LineBreakSymbol>() { LineBreakSymbol.EOL, LineBreakSymbol.DollarSign };
         Dictionary<string, bool> lineBreaksNeeded = new Dictionary<string, bool>();
 
+        class SlurInfo {
+            public int lineNum { get; set; }
+            public int linePos { get; set; }
+            public int itemIndex { get; set; }
+        }
+        Dictionary<Voice, List<SlurInfo>> slurStacks = new Dictionary<Voice, List<SlurInfo>>();
+
         private List<string> decorations = null;
 
         public Tune Parse(Stream stream)
@@ -59,10 +67,27 @@ namespace ABC
                     ParseTuneBody();
             }
 
+            FinalizaeSlurs();
+
             return tune;
         }
 
         private static string defaultVoiceIdentifier = "__default__";
+
+        private void FinalizaeSlurs()
+        {
+            foreach(var slurStack in slurStacks.Values)
+            {
+                if (slurStack.Count > 0) {
+                    throw new ParseException($"Unterminated slur at: {slurStack[0].lineNum}, {slurStack[0].linePos}");
+                }
+            }
+
+            foreach (var voice in tune.voices)
+            {
+                voice.slurs.Sort();
+            }
+        }
         
         void EnsureVoice()
         {
@@ -184,6 +209,53 @@ namespace ABC
             beam = false;
         }
 
+        private void ParseSlurStart()
+        {
+            EnsureVoice();
+            if (!slurStacks.TryGetValue(voice, out var slurStack))
+            {
+                slurStack = new List<SlurInfo>();
+                slurStacks.Add(voice, slurStack);
+            }
+
+            slurStack.Add(new SlurInfo()
+            {
+                lineNum = this.lineNum,
+                linePos = index,
+                itemIndex = voice.items.Count
+            });
+
+            index += 1;
+        }
+
+        private void ParseSlurEnd() {
+            if (!slurStacks.TryGetValue(voice, out var slurStack) || slurStack.Count == 0)
+            {
+                throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
+            }
+
+            var slurStart = slurStack[slurStack.Count - 1];
+            var itemIndex = voice.items.Count - 1;
+
+            // abc spec 4.11 slur can start and end on the same note
+            // in this case find the previous slur start and use that
+            if (itemIndex == slurStart.itemIndex) {
+                if (slurStack.Count < 2) {
+                    throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
+                }
+
+                slurStart = slurStack[slurStack.Count - 2];
+                slurStack.RemoveAt(slurStack.Count - 2);
+            }
+            else {
+                slurStack.RemoveAt(slurStack.Count - 1);
+            }
+
+            voice.slurs.Add(new Slur(slurStart.itemIndex, itemIndex));
+
+            index += 1;
+        }
+
         void ParseTuneBody()
         {
             parsingTuneBody = true;
@@ -228,6 +300,15 @@ namespace ABC
                     EnsureVoice();
                     ReadRest();
                     beam = false;
+                }
+                else if (currentLine[index] == '(')
+                {
+                    ParseSlurStart();
+                    continue;
+                }
+                else if (currentLine[index] == ')') {
+                    ParseSlurEnd();
+                    continue;
                 }
                 else
                 {
