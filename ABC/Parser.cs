@@ -38,12 +38,18 @@ namespace ABC
         private List<LineBreakSymbol> lineBreakSymbols = new List<LineBreakSymbol>() { LineBreakSymbol.EOL, LineBreakSymbol.DollarSign };
         Dictionary<string, bool> lineBreaksNeeded = new Dictionary<string, bool>();
 
-        class SlurInfo {
-            public int lineNum { get; set; }
-            public int linePos { get; set; }
-            public int itemIndex { get; set; }
+        class VoiceParseContext {
+            public class SlurInfo {
+                public int lineNum { get; set; }
+                public int linePos { get; set; }
+                public int itemIndex { get; set; }
+            }
+
+            public List<SlurInfo> slurs = new List<SlurInfo>();
+            public int? tie = null;
         }
-        Dictionary<Voice, List<SlurInfo>> slurStacks = new Dictionary<Voice, List<SlurInfo>>();
+
+        Dictionary<Voice, VoiceParseContext> voiceParseContexts = new Dictionary<Voice, VoiceParseContext>();
 
         private List<string> decorations = null;
 
@@ -76,10 +82,11 @@ namespace ABC
 
         private void FinalizaeSlurs()
         {
-            foreach(var slurStack in slurStacks.Values)
+            foreach(var parseContext in voiceParseContexts.Values)
             {
-                if (slurStack.Count > 0) {
-                    throw new ParseException($"Unterminated slur at: {slurStack[0].lineNum}, {slurStack[0].linePos}");
+                if (parseContext.slurs.Count > 0) {
+                    var slurInfo = parseContext.slurs[parseContext.slurs.Count - 1];
+                    throw new ParseException($"Unterminated slur at: {slurInfo.lineNum}, {slurInfo.linePos}");
                 }
             }
 
@@ -94,6 +101,7 @@ namespace ABC
             if (voice != null) return;
             
             voice = new Voice(defaultVoiceIdentifier);
+            voiceParseContexts[voice] = new VoiceParseContext();
             voice.initialTimeSignature = timeSignature;
             lineBreaksNeeded[voice.identifier] = false;
 
@@ -199,7 +207,7 @@ namespace ABC
             {
                 barItem = new Bar(Elements.standardBarTypes[barString]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 barItem = new CustomBar(barString);
             }
@@ -212,13 +220,9 @@ namespace ABC
         private void ParseSlurStart()
         {
             EnsureVoice();
-            if (!slurStacks.TryGetValue(voice, out var slurStack))
-            {
-                slurStack = new List<SlurInfo>();
-                slurStacks.Add(voice, slurStack);
-            }
+            var parseContext = voiceParseContexts[voice];
 
-            slurStack.Add(new SlurInfo()
+            parseContext.slurs.Add(new VoiceParseContext.SlurInfo()
             {
                 lineNum = this.lineNum,
                 linePos = index,
@@ -229,29 +233,31 @@ namespace ABC
         }
 
         private void ParseSlurEnd() {
-            if (!slurStacks.TryGetValue(voice, out var slurStack) || slurStack.Count == 0)
+            var parseContext = voiceParseContexts[voice];
+
+            if (parseContext.slurs.Count == 0)
             {
                 throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
             }
 
-            var slurStart = slurStack[slurStack.Count - 1];
+            var slurStart = parseContext.slurs[parseContext.slurs.Count - 1];
             var itemIndex = voice.items.Count - 1;
 
             // abc spec 4.11 slur can start and end on the same note
             // in this case find the previous slur start and use that
             if (itemIndex == slurStart.itemIndex) {
-                if (slurStack.Count < 2) {
+                if (parseContext.slurs.Count < 2) {
                     throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
                 }
 
-                slurStart = slurStack[slurStack.Count - 2];
-                slurStack.RemoveAt(slurStack.Count - 2);
+                slurStart = parseContext.slurs[parseContext.slurs.Count - 2];
+                parseContext.slurs.RemoveAt(parseContext.slurs.Count - 2);
             }
             else {
-                slurStack.RemoveAt(slurStack.Count - 1);
+                parseContext.slurs.RemoveAt(parseContext.slurs.Count - 1);
             }
 
-            voice.slurs.Add(new Slur(slurStart.itemIndex, itemIndex));
+            voice.slurs.Add(new Slur(Slur.Type.Slur, slurStart.itemIndex, itemIndex));
 
             index += 1;
         }
@@ -500,6 +506,7 @@ namespace ABC
             chord.dotCount = dotCount;
 
             UpdateBeam(chord);
+            CheckTieStatus();
             voice.items.Add(chord);
             SetDecorationsForItem(chord);
         }
@@ -591,6 +598,7 @@ namespace ABC
             CheckForLineBreak();
             var note = ReadBaseNote();
             ParseLengthValues(note);
+            CheckTieStatus();
             SetDecorationsForItem(note);
 
             return note;
@@ -612,6 +620,24 @@ namespace ABC
             ParseLength(out l, out dots);
             duration.length = l;
             duration.dotCount = dots;
+        }
+        
+        void CheckTieStatus()
+        {
+            var parseContext = voiceParseContexts[voice];
+
+            if (parseContext.tie.HasValue)
+            {
+                voice.slurs.Add(new Slur(Slur.Type.Tie, parseContext.tie.Value, voice.items.Count));
+                parseContext.tie = null;
+            }
+
+            // tie operator '-' must be attached to the end of a note.
+            if (index < currentLine.Length && currentLine[index] == '-')
+            {
+                parseContext.tie = voice.items.Count;
+                index += 1;
+            }
         }
 
         float ReadDurationModifier()
@@ -910,6 +936,7 @@ namespace ABC
             if (voice == null)
             {
                 voice = new Voice(identifier);
+                voiceParseContexts[voice] = new VoiceParseContext();
                 voice.initialTimeSignature = timeSignature;
                 lineBreaksNeeded[voice.identifier] = false;
 

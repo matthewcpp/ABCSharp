@@ -38,7 +38,7 @@ namespace TestABC
             var voice = tune.voices[0];
 
             List<Slur> expectedSlurs = new List<Slur>(){
-                new Slur(1, 13), new Slur(5, 6), new Slur(7, 8)
+                new Slur(Slur.Type.Slur, 1, 13), new Slur(Slur.Type.Slur, 5, 6), new Slur(Slur.Type.Slur,7, 8)
             };
 
             Assert.AreEqual(expectedSlurs.Count, voice.slurs.Count);
@@ -77,11 +77,11 @@ namespace TestABC
 
             var treble = tune.voices[0];
             Assert.AreEqual(1, treble.slurs.Count);
-            Assert.AreEqual(new Slur(1, 9), treble.slurs[0]);
+            Assert.AreEqual(new Slur(Slur.Type.Slur, 1, 9), treble.slurs[0]);
 
             var bass = tune.voices[1];
             Assert.AreEqual(1, bass.slurs.Count);
-            Assert.AreEqual(new Slur(1, 3), bass.slurs[0]);
+            Assert.AreEqual(new Slur(Slur.Type.Slur, 1, 3), bass.slurs[0]);
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@ namespace TestABC
             var voice = tune.voices[0];
 
             List<Slur> expectedSlurs = new List<Slur>(){
-                new Slur(0, 2), new Slur(2, 5)
+                new Slur(Slur.Type.Slur, 0, 2), new Slur(Slur.Type.Slur, 2, 5)
             };
 
             Assert.AreEqual(expectedSlurs.Count, voice.slurs.Count);

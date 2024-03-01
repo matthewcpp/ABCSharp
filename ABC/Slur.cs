@@ -3,10 +3,15 @@ using System;
 namespace ABC
 {
     public class Slur : IEquatable<Slur>, IComparable<Slur> {
+        public enum Type {Slur, Tie};
+
         public int start {get; private set;}
         public int end {get; private set;}
 
-        public Slur(int start, int end) {
+        public Slur.Type type {get; private set;}
+
+        public Slur(Slur.Type type, int start, int end) {
+            this.type = type;
             this.start = start;
             this.end = end;
         }
@@ -17,7 +22,7 @@ namespace ABC
                 return false;
             }
 
-            return start == other.start && end == other.end;
+            return type == other.type && start == other.start && end == other.end;
         }
 
         public int CompareTo(Slur other)
