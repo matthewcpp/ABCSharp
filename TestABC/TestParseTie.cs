@@ -21,10 +21,10 @@ namespace TestABC
                 "[CEG]-[CEG]", /* tie chords */
             };
 
-            var expectedTies = new Slur[] {
-                new Slur(Slur.Type.Tie, 0, 1),
-                new Slur(Slur.Type.Tie, 2, 4),
-                new Slur(Slur.Type.Tie, 0, 1),
+            var expectedTiesIndices = new Tuple<int, int>[] {
+                new Tuple<int, int>(0, 1),
+                new Tuple<int, int>(2, 4),
+                new Tuple<int, int>(0, 1)
             };
 
             for (int i = 0; i < tests.Length; i++)
@@ -34,8 +34,12 @@ namespace TestABC
                 Assert.AreEqual(1, tune.voices.Count);
                 var voice = tune.voices[0];
 
+                var expectedStartItem = voice.items[expectedTiesIndices[i].Item1];
+                var expectedEndItem = voice.items[expectedTiesIndices[i].Item2];
+                var expectedSlur = new Slur(Slur.Type.Tie, expectedStartItem.id, expectedEndItem.id);
+
                 Assert.AreEqual(1, voice.slurs.Count);
-                Assert.AreEqual(expectedTies[i], voice.slurs[0], $"Tie {i} mismatch");
+                Assert.AreEqual(expectedSlur, voice.slurs[0], $"Tie {i} mismatch");
             }
         }
     }

@@ -46,7 +46,7 @@ namespace ABC
             }
 
             public List<SlurInfo> slurs = new List<SlurInfo>();
-            public int? tie = null;
+            public int? tieStartIndex = null;
         }
 
         Dictionary<Voice, VoiceParseContext> voiceParseContexts = new Dictionary<Voice, VoiceParseContext>();
@@ -241,11 +241,11 @@ namespace ABC
             }
 
             var slurStart = parseContext.slurs[parseContext.slurs.Count - 1];
-            var itemIndex = voice.items.Count - 1;
+            var slurEndIndex = voice.items.Count - 1;
 
             // abc spec 4.11 slur can start and end on the same note
             // in this case find the previous slur start and use that
-            if (itemIndex == slurStart.itemIndex) {
+            if (slurEndIndex == slurStart.itemIndex) {
                 if (parseContext.slurs.Count < 2) {
                     throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
                 }
@@ -257,7 +257,9 @@ namespace ABC
                 parseContext.slurs.RemoveAt(parseContext.slurs.Count - 1);
             }
 
-            voice.slurs.Add(new Slur(Slur.Type.Slur, slurStart.itemIndex, itemIndex));
+            var startItem = voice.items[slurStart.itemIndex];
+            var endItem = voice.items[slurEndIndex];
+            voice.slurs.Add(new Slur(Slur.Type.Slur, startItem.id, endItem.id));
 
             index += 1;
         }
@@ -300,6 +302,7 @@ namespace ABC
                     UpdateBeam(note);
 
                     voice.items.Add(note);
+                    CheckTieStatus();
                 }
                 else if (Elements.rests.Contains(currentLine[index]))
                 {
@@ -506,8 +509,8 @@ namespace ABC
             chord.dotCount = dotCount;
 
             UpdateBeam(chord);
-            CheckTieStatus();
             voice.items.Add(chord);
+            CheckTieStatus();
             SetDecorationsForItem(chord);
         }
 
@@ -598,7 +601,6 @@ namespace ABC
             CheckForLineBreak();
             var note = ReadBaseNote();
             ParseLengthValues(note);
-            CheckTieStatus();
             SetDecorationsForItem(note);
 
             return note;
@@ -622,20 +624,23 @@ namespace ABC
             duration.dotCount = dots;
         }
         
+        /// <summary> This should only be called right after a note has been parsed</summary>
         void CheckTieStatus()
         {
             var parseContext = voiceParseContexts[voice];
 
-            if (parseContext.tie.HasValue)
+            if (parseContext.tieStartIndex.HasValue)
             {
-                voice.slurs.Add(new Slur(Slur.Type.Tie, parseContext.tie.Value, voice.items.Count));
-                parseContext.tie = null;
+                var startItem = voice.items[parseContext.tieStartIndex.Value];
+                var endItem = voice.items[voice.items.Count - 1];
+                voice.slurs.Add(new Slur(Slur.Type.Tie, startItem.id, endItem.id));
+                parseContext.tieStartIndex = null;
             }
 
             // tie operator '-' must be attached to the end of a note.
             if (index < currentLine.Length && currentLine[index] == '-')
             {
-                parseContext.tie = voice.items.Count;
+                parseContext.tieStartIndex = voice.items.Count - 1;
                 index += 1;
             }
         }

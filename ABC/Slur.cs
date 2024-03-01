@@ -5,15 +5,22 @@ namespace ABC
     public class Slur : IEquatable<Slur>, IComparable<Slur> {
         public enum Type {Slur, Tie};
 
-        public int start {get; private set;}
-        public int end {get; private set;}
+        /// <summary>
+        /// Item Id of the stat of the slur
+        /// </summary>
+        public int startId {get; private set;}
+
+        /// <summary>
+        /// Item Id of the end of the slur
+        /// </summary>
+        public int endId {get; private set;}
 
         public Slur.Type type {get; private set;}
 
-        public Slur(Slur.Type type, int start, int end) {
+        public Slur(Slur.Type type, int startId, int endId) {
             this.type = type;
-            this.start = start;
-            this.end = end;
+            this.startId = startId;
+            this.endId = endId;
         }
 
         public bool Equals(Slur other) {
@@ -22,7 +29,7 @@ namespace ABC
                 return false;
             }
 
-            return type == other.type && start == other.start && end == other.end;
+            return type == other.type && startId == other.startId && endId == other.endId;
         }
 
         public int CompareTo(Slur other)
@@ -32,7 +39,7 @@ namespace ABC
                 return 1;
             } 
 
-            return start.CompareTo(other.start);
+            return startId.CompareTo(other.startId);
         }
     }
 }

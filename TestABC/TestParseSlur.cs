@@ -24,8 +24,8 @@ namespace TestABC
             Assert.AreEqual(1, voice.slurs.Count);
             var slur = voice.slurs[0];
 
-            Assert.AreEqual(0, slur.start);
-            Assert.AreEqual(2, slur.end);
+            Assert.AreEqual(voice.items[0].id, slur.startId);
+            Assert.AreEqual(voice.items[2].id, slur.endId);
         }
 
         [TestMethod]
@@ -38,7 +38,9 @@ namespace TestABC
             var voice = tune.voices[0];
 
             List<Slur> expectedSlurs = new List<Slur>(){
-                new Slur(Slur.Type.Slur, 1, 13), new Slur(Slur.Type.Slur, 5, 6), new Slur(Slur.Type.Slur,7, 8)
+                new Slur(Slur.Type.Slur, voice.items[1].id, voice.items[13].id), 
+                new Slur(Slur.Type.Slur, voice.items[5].id, voice.items[6].id), 
+                new Slur(Slur.Type.Slur, voice.items[7].id, voice.items[8].id)
             };
 
             Assert.AreEqual(expectedSlurs.Count, voice.slurs.Count);
@@ -77,11 +79,11 @@ namespace TestABC
 
             var treble = tune.voices[0];
             Assert.AreEqual(1, treble.slurs.Count);
-            Assert.AreEqual(new Slur(Slur.Type.Slur, 1, 9), treble.slurs[0]);
+            Assert.AreEqual(new Slur(Slur.Type.Slur, treble.items[1].id, treble.items[9].id), treble.slurs[0]);
 
             var bass = tune.voices[1];
             Assert.AreEqual(1, bass.slurs.Count);
-            Assert.AreEqual(new Slur(Slur.Type.Slur, 1, 3), bass.slurs[0]);
+            Assert.AreEqual(new Slur(Slur.Type.Slur, bass.items[1].id, bass.items[3].id), bass.slurs[0]);
         }
 
         [TestMethod]
@@ -94,7 +96,8 @@ namespace TestABC
             var voice = tune.voices[0];
 
             List<Slur> expectedSlurs = new List<Slur>(){
-                new Slur(Slur.Type.Slur, 0, 2), new Slur(Slur.Type.Slur, 2, 5)
+                new Slur(Slur.Type.Slur, voice.items[0].id, voice.items[2].id), 
+                new Slur(Slur.Type.Slur, voice.items[2].id, voice.items[5].id)
             };
 
             Assert.AreEqual(expectedSlurs.Count, voice.slurs.Count);
