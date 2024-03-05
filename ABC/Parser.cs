@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Diagnostics;
 
 namespace ABC
 {
@@ -37,6 +38,19 @@ namespace ABC
         private List<LineBreakSymbol> lineBreakSymbols = new List<LineBreakSymbol>() { LineBreakSymbol.EOL, LineBreakSymbol.DollarSign };
         Dictionary<string, bool> lineBreaksNeeded = new Dictionary<string, bool>();
 
+        class VoiceParseContext {
+            public class SlurInfo {
+                public int lineNum { get; set; }
+                public int linePos { get; set; }
+                public int itemIndex { get; set; }
+            }
+
+            public List<SlurInfo> slurs = new List<SlurInfo>();
+            public int? tieStartIndex = null;
+        }
+
+        Dictionary<Voice, VoiceParseContext> voiceParseContexts = new Dictionary<Voice, VoiceParseContext>();
+
         private List<string> decorations = null;
 
         public Tune Parse(Stream stream)
@@ -59,16 +73,35 @@ namespace ABC
                     ParseTuneBody();
             }
 
+            FinalizaeSlurs();
+
             return tune;
         }
 
         private static string defaultVoiceIdentifier = "__default__";
+
+        private void FinalizaeSlurs()
+        {
+            foreach(var parseContext in voiceParseContexts.Values)
+            {
+                if (parseContext.slurs.Count > 0) {
+                    var slurInfo = parseContext.slurs[parseContext.slurs.Count - 1];
+                    throw new ParseException($"Unterminated slur at: {slurInfo.lineNum}, {slurInfo.linePos}");
+                }
+            }
+
+            foreach (var voice in tune.voices)
+            {
+                voice.slurs.Sort();
+            }
+        }
         
         void EnsureVoice()
         {
             if (voice != null) return;
             
             voice = new Voice(defaultVoiceIdentifier);
+            voiceParseContexts[voice] = new VoiceParseContext();
             voice.initialTimeSignature = timeSignature;
             lineBreaksNeeded[voice.identifier] = false;
 
@@ -174,7 +207,7 @@ namespace ABC
             {
                 barItem = new Bar(Elements.standardBarTypes[barString]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 barItem = new CustomBar(barString);
             }
@@ -182,6 +215,53 @@ namespace ABC
             SetDecorationsForItem(barItem);
             voice.items.Add(barItem);
             beam = false;
+        }
+
+        private void ParseSlurStart()
+        {
+            EnsureVoice();
+            var parseContext = voiceParseContexts[voice];
+
+            parseContext.slurs.Add(new VoiceParseContext.SlurInfo()
+            {
+                lineNum = this.lineNum,
+                linePos = index,
+                itemIndex = voice.items.Count
+            });
+
+            index += 1;
+        }
+
+        private void ParseSlurEnd() {
+            var parseContext = voiceParseContexts[voice];
+
+            if (parseContext.slurs.Count == 0)
+            {
+                throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
+            }
+
+            var slurStart = parseContext.slurs[parseContext.slurs.Count - 1];
+            var slurEndIndex = voice.items.Count - 1;
+
+            // abc spec 4.11 slur can start and end on the same note
+            // in this case find the previous slur start and use that
+            if (slurEndIndex == slurStart.itemIndex) {
+                if (parseContext.slurs.Count < 2) {
+                    throw new ParseException($"Mismatched ')' at: {lineNum}, {index}");
+                }
+
+                slurStart = parseContext.slurs[parseContext.slurs.Count - 2];
+                parseContext.slurs.RemoveAt(parseContext.slurs.Count - 2);
+            }
+            else {
+                parseContext.slurs.RemoveAt(parseContext.slurs.Count - 1);
+            }
+
+            var startItem = voice.items[slurStart.itemIndex];
+            var endItem = voice.items[slurEndIndex];
+            voice.slurs.Add(new Slur(Slur.Type.Slur, startItem.id, endItem.id));
+
+            index += 1;
         }
 
         void ParseTuneBody()
@@ -222,12 +302,22 @@ namespace ABC
                     UpdateBeam(note);
 
                     voice.items.Add(note);
+                    CheckTieStatus();
                 }
                 else if (Elements.rests.Contains(currentLine[index]))
                 {
                     EnsureVoice();
                     ReadRest();
                     beam = false;
+                }
+                else if (currentLine[index] == '(')
+                {
+                    ParseSlurStart();
+                    continue;
+                }
+                else if (currentLine[index] == ')') {
+                    ParseSlurEnd();
+                    continue;
                 }
                 else
                 {
@@ -420,6 +510,7 @@ namespace ABC
 
             UpdateBeam(chord);
             voice.items.Add(chord);
+            CheckTieStatus();
             SetDecorationsForItem(chord);
         }
 
@@ -531,6 +622,27 @@ namespace ABC
             ParseLength(out l, out dots);
             duration.length = l;
             duration.dotCount = dots;
+        }
+        
+        /// <summary> This should only be called right after a note has been parsed</summary>
+        void CheckTieStatus()
+        {
+            var parseContext = voiceParseContexts[voice];
+
+            if (parseContext.tieStartIndex.HasValue)
+            {
+                var startItem = voice.items[parseContext.tieStartIndex.Value];
+                var endItem = voice.items[voice.items.Count - 1];
+                voice.slurs.Add(new Slur(Slur.Type.Tie, startItem.id, endItem.id));
+                parseContext.tieStartIndex = null;
+            }
+
+            // tie operator '-' must be attached to the end of a note.
+            if (index < currentLine.Length && currentLine[index] == '-')
+            {
+                parseContext.tieStartIndex = voice.items.Count - 1;
+                index += 1;
+            }
         }
 
         float ReadDurationModifier()
@@ -829,6 +941,7 @@ namespace ABC
             if (voice == null)
             {
                 voice = new Voice(identifier);
+                voiceParseContexts[voice] = new VoiceParseContext();
                 voice.initialTimeSignature = timeSignature;
                 lineBreaksNeeded[voice.identifier] = false;
 

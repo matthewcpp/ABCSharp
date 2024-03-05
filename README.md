@@ -1,10 +1,8 @@
 # ABCSharp
 
-[![Build Status](https://travis-ci.org/matthewcpp/ABCSharp.svg?branch=master)](https://travis-ci.org/matthewcpp/ABCSharp)
-
 This library parses a (very) minimal set of [ABC Music Notation](http://abcnotation.com) files.
 
-Supported Features:
+### Supported Features:
 - Notes: Accidentals, Octatve Modifiers, Chords, Length Modifier, Dots, Broken Rhythm
 - Information Fields: 
     - Unit Note Length
@@ -16,8 +14,9 @@ Supported Features:
 - Rests (individual and multi-measure)
 - Bar: Single Line, Double Line, Repeat Start, Repeat End, Repeat End/Start, Start / End Bar, Additional custom bars as per ABC Spec
 - Multiple Voices: `clef` (treble, bass) and `name` modifiers
+- Slurs (non-dotted) and Ties
 
-Usage example:
+### Usage example:
 ```csharp
 string abc = "...";
 var tune = Tune.load(abc);

@@ -19,6 +19,8 @@ namespace ABC
         public Clef clef { get; set; } = Clef.Treble;
         public List<Item> items { get; } = new List<Item>();
 
+        public List<Slur> slurs { get; } = new List<Slur>();
+
         /// <summary>The initial key signature for this voice.  Changes to this value will be represented with <see cref="Key"/> items.</summary>
         public KeySignature initialKey { get; set; } = KeySignature.CMajor;
 
