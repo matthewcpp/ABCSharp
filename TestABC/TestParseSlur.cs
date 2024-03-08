@@ -106,5 +106,29 @@ namespace TestABC
                 Assert.AreEqual(expectedSlurs[i], voice.slurs[i], $"Slur mismatch: {i}");
             }
         }
+
+        [TestMethod]
+        public void ParseSlurAfterLineBreak()
+        {
+            var abc = @"
+            X:1
+            M:C
+            L:1/4
+            K:C
+
+            CDEF |
+
+            (DFAc | cAFD) |";
+
+            var tune = Tune.Load(abc);
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+
+            Assert.AreEqual(1, voice.slurs.Count);
+
+            var expectedSlur = new Slur(Slur.Type.Slur, voice.items[6].id, voice.items[14].id);
+            Assert.AreEqual(expectedSlur, voice.slurs[0]);
+        }
     }
 }

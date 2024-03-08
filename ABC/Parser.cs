@@ -222,6 +222,11 @@ namespace ABC
             EnsureVoice();
             var parseContext = voiceParseContexts[voice];
 
+            // We check for linebreak here because if a slur starts at the beginning of a line
+            // that has a bending break, we want to make sure the item index we store in the
+            // Slur info will correspond to the next note that we parese.
+            CheckForLineBreak();
+
             parseContext.slurs.Add(new VoiceParseContext.SlurInfo()
             {
                 lineNum = this.lineNum,
