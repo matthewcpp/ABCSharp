@@ -20,6 +20,7 @@ namespace ABC
         public List<Item> items { get; } = new List<Item>();
 
         public List<Slur> slurs { get; } = new List<Slur>();
+        public List<Tie> ties { get; } = new List<Tie>();
 
         /// <summary>The initial key signature for this voice.  Changes to this value will be represented with <see cref="Key"/> items.</summary>
         public KeySignature initialKey { get; set; } = KeySignature.CMajor;

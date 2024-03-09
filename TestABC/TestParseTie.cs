@@ -36,10 +36,10 @@ namespace TestABC
 
                 var expectedStartItem = voice.items[expectedTiesIndices[i].Item1];
                 var expectedEndItem = voice.items[expectedTiesIndices[i].Item2];
-                var expectedSlur = new Slur(Slur.Type.Tie, expectedStartItem.id, expectedEndItem.id);
+                var expectedTie = new Tie(expectedStartItem.id, expectedEndItem.id);
 
-                Assert.AreEqual(1, voice.slurs.Count);
-                Assert.AreEqual(expectedSlur, voice.slurs[0], $"Tie {i} mismatch");
+                Assert.AreEqual(1, voice.ties.Count);
+                Assert.AreEqual(expectedTie, voice.ties[0], $"Tie {i} mismatch");
             }
         }
     }

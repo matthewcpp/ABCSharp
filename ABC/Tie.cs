@@ -2,15 +2,14 @@ using System;
 
 namespace ABC
 {
-    public class Slur : Grouping, IEquatable<Slur>, IComparable<Slur> {
+    public class Tie : Grouping, IEquatable<Tie>, IComparable<Tie> {
         
-
-        public Slur(int startId, int endId) :base(startId, endId)
+        public Tie(int startId, int endId) : base(startId, endId)
         {
 
         }
 
-        public bool Equals(Slur other) {
+        public bool Equals(Tie other) {
             if (other == null)
             {
                 return false;
@@ -19,7 +18,7 @@ namespace ABC
             return startId == other.startId && endId == other.endId;
         }
 
-        public int CompareTo(Slur other)
+        public int CompareTo(Tie other)
         {
             if (ReferenceEquals(other, null))
             {

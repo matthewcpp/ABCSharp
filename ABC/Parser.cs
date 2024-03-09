@@ -2,9 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Diagnostics;
 
 namespace ABC
 {
@@ -73,14 +70,14 @@ namespace ABC
                     ParseTuneBody();
             }
 
-            FinalizaeSlurs();
+            FinalizaeSlursAndTies();
 
             return tune;
         }
 
         private static string defaultVoiceIdentifier = "__default__";
 
-        private void FinalizaeSlurs()
+        private void FinalizaeSlursAndTies()
         {
             foreach(var parseContext in voiceParseContexts.Values)
             {
@@ -93,6 +90,7 @@ namespace ABC
             foreach (var voice in tune.voices)
             {
                 voice.slurs.Sort();
+                voice.ties.Sort();
             }
         }
         
@@ -264,7 +262,7 @@ namespace ABC
 
             var startItem = voice.items[slurStart.itemIndex];
             var endItem = voice.items[slurEndIndex];
-            voice.slurs.Add(new Slur(Slur.Type.Slur, startItem.id, endItem.id));
+            voice.slurs.Add(new Slur(startItem.id, endItem.id));
 
             index += 1;
         }
@@ -638,7 +636,7 @@ namespace ABC
             {
                 var startItem = voice.items[parseContext.tieStartIndex.Value];
                 var endItem = voice.items[voice.items.Count - 1];
-                voice.slurs.Add(new Slur(Slur.Type.Tie, startItem.id, endItem.id));
+                voice.ties.Add(new Tie(startItem.id, endItem.id));
                 parseContext.tieStartIndex = null;
             }
 

@@ -38,9 +38,9 @@ namespace TestABC
             var voice = tune.voices[0];
 
             List<Slur> expectedSlurs = new List<Slur>(){
-                new Slur(Slur.Type.Slur, voice.items[1].id, voice.items[13].id), 
-                new Slur(Slur.Type.Slur, voice.items[5].id, voice.items[6].id), 
-                new Slur(Slur.Type.Slur, voice.items[7].id, voice.items[8].id)
+                new Slur(voice.items[1].id, voice.items[13].id), 
+                new Slur(voice.items[5].id, voice.items[6].id), 
+                new Slur(voice.items[7].id, voice.items[8].id)
             };
 
             Assert.AreEqual(expectedSlurs.Count, voice.slurs.Count);
@@ -79,11 +79,11 @@ namespace TestABC
 
             var treble = tune.voices[0];
             Assert.AreEqual(1, treble.slurs.Count);
-            Assert.AreEqual(new Slur(Slur.Type.Slur, treble.items[1].id, treble.items[9].id), treble.slurs[0]);
+            Assert.AreEqual(new Slur(treble.items[1].id, treble.items[9].id), treble.slurs[0]);
 
             var bass = tune.voices[1];
             Assert.AreEqual(1, bass.slurs.Count);
-            Assert.AreEqual(new Slur(Slur.Type.Slur, bass.items[1].id, bass.items[3].id), bass.slurs[0]);
+            Assert.AreEqual(new Slur(bass.items[1].id, bass.items[3].id), bass.slurs[0]);
         }
 
         [TestMethod]
@@ -96,8 +96,8 @@ namespace TestABC
             var voice = tune.voices[0];
 
             List<Slur> expectedSlurs = new List<Slur>(){
-                new Slur(Slur.Type.Slur, voice.items[0].id, voice.items[2].id), 
-                new Slur(Slur.Type.Slur, voice.items[2].id, voice.items[5].id)
+                new Slur(voice.items[0].id, voice.items[2].id), 
+                new Slur(voice.items[2].id, voice.items[5].id)
             };
 
             Assert.AreEqual(expectedSlurs.Count, voice.slurs.Count);
@@ -127,7 +127,7 @@ namespace TestABC
 
             Assert.AreEqual(1, voice.slurs.Count);
 
-            var expectedSlur = new Slur(Slur.Type.Slur, voice.items[6].id, voice.items[14].id);
+            var expectedSlur = new Slur(voice.items[6].id, voice.items[14].id);
             Assert.AreEqual(expectedSlur, voice.slurs[0]);
         }
     }
