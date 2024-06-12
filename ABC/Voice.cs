@@ -18,7 +18,7 @@ namespace ABC
         public string name { get; set; }
         public Clef clef { get; set; } = Clef.Treble;
         public List<Item> items { get; } = new List<Item>();
-
+        public List<Beam> beams{ get; } = new List<Beam>();
         public List<Slur> slurs { get; } = new List<Slur>();
         public List<Tie> ties { get; } = new List<Tie>();
 

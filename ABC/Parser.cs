@@ -28,21 +28,33 @@ namespace ABC
         private BrokenRhythm brokenRhythm = BrokenRhythm.None;
         private int brokenRhythmCount = 0;
 
-        Duration beamStartItem = null;
-        Beam currentBeam = null;
-
         private enum LineBreakSymbol { None, EOL, DollarSign };
         private List<LineBreakSymbol> lineBreakSymbols = new List<LineBreakSymbol>() { LineBreakSymbol.EOL, LineBreakSymbol.DollarSign };
         Dictionary<string, bool> lineBreaksNeeded = new Dictionary<string, bool>();
 
-        class VoiceParseContext {
-            public class SlurInfo {
+        class VoiceParseContext 
+        {
+            public class SlurInfo 
+            {
                 public int lineNum { get; set; }
                 public int linePos { get; set; }
                 public int itemIndex { get; set; }
             }
 
+            public class BeamInfo
+            {
+                public Duration startItem = null;
+                public Beam current = null;
+
+                public void Clear()
+                {
+                    startItem = null;
+                    current = null;
+                }
+            }
+
             public List<SlurInfo> slurs = new List<SlurInfo>();
+            public BeamInfo beam = new BeamInfo();
             public int? tieStartIndex = null;
         }
 
@@ -432,24 +444,26 @@ namespace ABC
         void UpdateBeam(Duration item)
         {
             ConsumeUntil((char c) => { return c != '`'; });
+            var parseContext = voiceParseContexts[voice];
 
             if (item.length <= Length.Eighth)
             {
                 // Just parsed a chord, potentially start a new beam
-                if (beamStartItem == null) 
+                if (parseContext.beam.startItem == null) 
                 {
-                    beamStartItem = item;
+                    parseContext.beam.startItem = item;
                     return;
                 }
 
-                if (currentBeam == null)
+                if (parseContext.beam.current == null)
                 {
-                    currentBeam = new Beam(beamStartItem.id, item.id);
-                    tune.beams.Add(currentBeam);
+                    var beam =  new Beam(parseContext.beam.startItem.id, item.id);
+                    parseContext.beam.current = beam;
+                    voice.beams.Add(beam);
                 }
                 else
                 {
-                    currentBeam.endId = item.id;
+                    parseContext.beam.current.endId = item.id;
                 }
             }
             else
@@ -460,8 +474,12 @@ namespace ABC
 
         void ClearCurrentBeam()
         {
-            beamStartItem = null;
-            currentBeam = null;
+            if (voice == null) {
+                return;
+            }
+
+            var parseContext = voiceParseContexts[voice];
+            parseContext.beam.Clear();
         }
 
         void CheckForLineBreak()

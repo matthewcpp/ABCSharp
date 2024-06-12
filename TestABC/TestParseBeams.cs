@@ -18,7 +18,8 @@ namespace TestABC
             var tune = Tune.Load(abc);
 
             Assert.AreEqual(1, tune.voices.Count);
-            var items = tune.voices[0].items;
+            var voice = tune.voices[0];
+            var items = voice.items;
 
             var expectedBeams = new List<Beam>()
             {
@@ -26,7 +27,7 @@ namespace TestABC
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
-                Assert.AreEqual(expectedBeams[i], tune.beams[i]);
+                Assert.AreEqual(expectedBeams[i], voice.beams[i]);
             }
         }
 
@@ -37,7 +38,8 @@ namespace TestABC
 
             var tune = Tune.Load(abc);
             Assert.AreEqual(1, tune.voices.Count);
-            var items = tune.voices[0].items;
+            var voice = tune.voices[0];
+            var items = voice.items;
 
             var expectedBeams = new List<Beam>()
             {
@@ -45,7 +47,7 @@ namespace TestABC
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
-                Assert.AreEqual(expectedBeams[i], tune.beams[i]);
+                Assert.AreEqual(expectedBeams[i], voice.beams[i]);
             }
         }
 
@@ -56,7 +58,8 @@ namespace TestABC
 
             var tune = Tune.Load(abc);
             Assert.AreEqual(1, tune.voices.Count);
-            var items = tune.voices[0].items;
+            var voice = tune.voices[0];
+            var items = voice.items;
 
             var expectedBeams = new List<Beam>()
             {
@@ -67,7 +70,7 @@ namespace TestABC
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
-                Assert.AreEqual(expectedBeams[i], tune.beams[i]);
+                Assert.AreEqual(expectedBeams[i], voice.beams[i]);
             }
         }
 
@@ -77,7 +80,8 @@ namespace TestABC
             var abc = "L:1/8\nA2``````````B``C";
             var tune = Tune.Load(abc);
             Assert.AreEqual(1, tune.voices.Count);
-            var items = tune.voices[0].items;
+            var voice = tune.voices[0];
+            var items = voice.items;
 
             var expectedBeams = new List<Beam>()
             {
@@ -85,7 +89,7 @@ namespace TestABC
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
-                Assert.AreEqual(expectedBeams[i], tune.beams[i]);
+                Assert.AreEqual(expectedBeams[i], voice.beams[i]);
             }
         }
     }
