@@ -28,8 +28,8 @@ namespace ABC
         private BrokenRhythm brokenRhythm = BrokenRhythm.None;
         private int brokenRhythmCount = 0;
 
-        bool beam = false;
-        int beamId = 0;
+        Duration beamStartItem = null;
+        Beam currentBeam = null;
 
         private enum LineBreakSymbol { None, EOL, DollarSign };
         private List<LineBreakSymbol> lineBreakSymbols = new List<LineBreakSymbol>() { LineBreakSymbol.EOL, LineBreakSymbol.DollarSign };
@@ -60,7 +60,7 @@ namespace ABC
                 currentLine = reader.ReadLine();
                 lineNum += 1;
                 index = 0;
-                beam = false;
+                ClearCurrentBeam();
 
                 if (SkipWhiteSpace()) continue;
 
@@ -110,14 +110,27 @@ namespace ABC
         {
             int startIndex = index;
 
-            while (index < currentLine.Length && Char.IsWhiteSpace(currentLine[index]))
+            while (index < currentLine.Length && Char.IsWhiteSpace(currentLine[index])) {
                 index += 1;
+            }
 
-            if (index != startIndex) beam = false;
+            if (index != startIndex) {
+                ClearCurrentBeam();
+            }
 
             return index == currentLine.Length;
         }
 
+        int ConsumeUntil(Func<char, bool> condition)
+        {
+            int length = 0;
+            while (index + length < currentLine.Length && !condition(currentLine[index + length]))
+                length += 1;
+
+            index += length;
+
+            return length;
+        }
 
         /// <summary>
         /// Reads the current line until the supplied condition is returned true
@@ -128,16 +141,13 @@ namespace ABC
         bool ReadUntil(Func<char, bool> condition, out string result)
         {
             int start = index;
-            int length = 0;
-            while (index + length < currentLine.Length && !condition(currentLine[index + length]))
-                length += 1;
+            int length = ConsumeUntil(condition);
 
             if (length > 0)
                 result = currentLine.Substring(start, length);
             else
                 result = string.Empty;
 
-            index += length;
 
             return index == currentLine.Length;
         }
@@ -212,7 +222,7 @@ namespace ABC
 
             SetDecorationsForItem(barItem);
             voice.items.Add(barItem);
-            beam = false;
+            ClearCurrentBeam();
         }
 
         private void ParseSlurStart()
@@ -311,7 +321,7 @@ namespace ABC
                 {
                     EnsureVoice();
                     ReadRest();
-                    beam = false;
+                    ClearCurrentBeam();
                 }
                 else if (currentLine[index] == '(')
                 {
@@ -333,8 +343,6 @@ namespace ABC
                 if (decorations != null)
                     throw new ParseException($"Invalid decoration near {lineNum}, {index}");
             }
-
-
         }
 
         void EvaluateLineBreak()
@@ -423,32 +431,37 @@ namespace ABC
 
         void UpdateBeam(Duration item)
         {
+            ConsumeUntil((char c) => { return c != '`'; });
+
             if (item.length <= Length.Eighth)
             {
-                if (!beam) // potentially start a new beam
+                // Just parsed a chord, potentially start a new beam
+                if (beamStartItem == null) 
                 {
-                    beam = true;
-                    beamId += 1;
+                    beamStartItem = item;
+                    return;
+                }
+
+                if (currentBeam == null)
+                {
+                    currentBeam = new Beam(beamStartItem.id, item.id);
+                    tune.beams.Add(currentBeam);
                 }
                 else
                 {
-                    // if the previous note has the same value as this one then we can beam it
-                    var previousItem = voice.items[voice.items.Count - 1] as Duration;
-                    if (previousItem != null && previousItem.length == item.length)
-                    {
-                        previousItem.beam = beamId;
-                        item.beam = beamId;
-                    }
-                    else
-                    {
-                        beam = false;
-                    }
+                    currentBeam.endId = item.id;
                 }
             }
             else
             {
-                beam = false;
+                ClearCurrentBeam();
             }
+        }
+
+        void ClearCurrentBeam()
+        {
+            beamStartItem = null;
+            currentBeam = null;
         }
 
         void CheckForLineBreak()

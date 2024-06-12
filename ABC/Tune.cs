@@ -10,6 +10,8 @@ namespace ABC
         public TuneHeader header { get; } = new TuneHeader();
         public string title { get { return header.title; } }
         public List<Voice> voices { get; } = new List<Voice>();
+
+        public List<Beam> beams{ get; } = new List<Beam>();
         
         /// <summary>
         /// Maps an item to a list of decorations which have been attached to it.

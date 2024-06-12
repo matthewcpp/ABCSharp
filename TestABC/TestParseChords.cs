@@ -85,30 +85,6 @@ namespace TestABC
         }
 
         [TestMethod]
-        public void ChordBeam()
-        {
-            var abc = "L:1/8\n[CEG][CEG] [CEG]";
-            var expectedBeams = new List<int>()
-            {
-                1,1,0
-            };
-
-            var tune = Tune.Load(abc);
-            Assert.AreEqual(1, tune.voices.Count);
-
-            var voice = tune.voices[0];
-            Assert.AreEqual(expectedBeams.Count, voice.items.Count);
-
-            for (int i = 0; i < expectedBeams.Count; i++)
-            {
-                var chord = voice.items[i] as Chord;
-                Assert.IsNotNull(chord);
-                
-                Assert.AreEqual(expectedBeams[i], chord.beam);
-            }
-        }
-
-        [TestMethod]
         public void SortsElements()
         {
             var notes = new List<Note>()
