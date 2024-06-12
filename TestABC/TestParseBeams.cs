@@ -92,5 +92,37 @@ namespace TestABC
                 Assert.AreEqual(expectedBeams[i], voice.beams[i]);
             }
         }
+
+        [TestMethod]
+        public void TestGetItems()
+        {
+            var abc = @"
+            V:1
+            V:2
+            L:1/4
+            [V:1] A/A/ A C/`D/`E/`F/ 
+            [V:2] A/`B/`C/`D/ F F";
+
+            var tune = Tune.Load(abc);
+            Assert.AreEqual(2, tune.voices.Count);
+
+            var v1 = tune.voices[0];
+            var v2 = tune.voices[1];
+
+            var sliceArray = (Voice v, int start, int length) => {
+                var slice = new List<Duration>();
+                for (int i = 0; i < length; i++) {
+                    slice.Add(v.items[start + i] as Duration);
+                }
+                return slice;
+            };
+
+            Assert.AreEqual(2, v1.beams.Count);
+            CollectionAssert.AreEqual(sliceArray(v1, 0, 2), v1.GetItems(v1.beams[0]));
+            CollectionAssert.AreEqual(sliceArray(v1, 3, 4), v1.GetItems(v1.beams[1]));
+
+            Assert.AreEqual(1, v2.beams.Count);
+            CollectionAssert.AreEqual(sliceArray(v2, 0, 4), v2.GetItems(v2.beams[0]));
+        }
     }
 }

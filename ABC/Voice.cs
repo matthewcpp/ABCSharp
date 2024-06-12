@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ABC
@@ -31,6 +32,34 @@ namespace ABC
         public Voice(string identifier)
         {
             this.identifier = identifier;
+        }
+
+        public int GetItemIndex(int itemId)
+        {
+            return items.FindIndex((Item item)=>{ return item.id == itemId;});
+        }
+
+        public List<Duration> GetItems(Beam beam)
+        {
+            var index = GetItemIndex(beam.startId);
+
+            if (index == -1) {
+                return null;
+            }
+
+            var result = new List<Duration>();
+
+            while(true) {
+                var duration = items[index++] as Duration;
+
+                result.Add(duration);
+
+                if (duration.id == beam.endId) {
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }
