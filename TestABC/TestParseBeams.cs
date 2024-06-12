@@ -23,12 +23,34 @@ namespace TestABC
 
             var expectedBeams = new List<Beam>()
             {
-                new Beam(items[0].id, items[1].id)
+                new Beam(voice, items[0].id, items[1].id)
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
                 Assert.AreEqual(expectedBeams[i], voice.beams[i]);
             }
+        }
+
+        [TestMethod]
+        public void SetsBeamMember()
+        {
+            var abc = "L:1/8\n[CEG][CEG] [CEG][CEG] [CEG]";
+            var tune = Tune.Load(abc);
+
+            Assert.AreEqual(1, tune.voices.Count);
+            var voice = tune.voices[0];
+            var items = voice.items;
+
+            Assert.AreEqual(5, items.Count);
+            Assert.AreEqual(2, voice.beams.Count);
+
+            Assert.AreEqual(voice.beams[0], (items[0] as Duration).beam);
+            Assert.AreEqual(voice.beams[0], (items[1] as Duration).beam);
+
+            Assert.AreEqual(voice.beams[1], (items[2] as Duration).beam);
+            Assert.AreEqual(voice.beams[1], (items[3] as Duration).beam);
+
+            Assert.IsNull((items[4] as Duration).beam);
         }
 
         [TestMethod]
@@ -43,7 +65,7 @@ namespace TestABC
 
             var expectedBeams = new List<Beam>()
             {
-                new Beam(items[0].id, items[1].id), new Beam(items[3].id, items[4].id)
+                new Beam(voice, items[0].id, items[1].id), new Beam(voice, items[3].id, items[4].id)
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
@@ -63,10 +85,10 @@ namespace TestABC
 
             var expectedBeams = new List<Beam>()
             {
-                new Beam(items[0].id, items[3].id), 
-                new Beam(items[5].id, items[8].id), 
-                new Beam(items[9].id, items[10].id), 
-                new Beam(items[13].id, items[14].id)
+                new Beam(voice, items[0].id, items[3].id), 
+                new Beam(voice, items[5].id, items[8].id), 
+                new Beam(voice, items[9].id, items[10].id), 
+                new Beam(voice, items[13].id, items[14].id)
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
@@ -85,7 +107,7 @@ namespace TestABC
 
             var expectedBeams = new List<Beam>()
             {
-                new Beam(items[1].id, items[2].id)
+                new Beam(voice, items[1].id, items[2].id)
             };
 
             for (int i = 0; i < expectedBeams.Count; i++) {
@@ -118,11 +140,11 @@ namespace TestABC
             };
 
             Assert.AreEqual(2, v1.beams.Count);
-            CollectionAssert.AreEqual(sliceArray(v1, 0, 2), v1.GetItems(v1.beams[0]));
-            CollectionAssert.AreEqual(sliceArray(v1, 3, 4), v1.GetItems(v1.beams[1]));
+            CollectionAssert.AreEqual(sliceArray(v1, 0, 2), v1.beams[0].items);
+            CollectionAssert.AreEqual(sliceArray(v1, 3, 4), v1.beams[1].items);
 
             Assert.AreEqual(1, v2.beams.Count);
-            CollectionAssert.AreEqual(sliceArray(v2, 0, 4), v2.GetItems(v2.beams[0]));
+            CollectionAssert.AreEqual(sliceArray(v2, 0, 4), v2.beams[0].items);
         }
     }
 }

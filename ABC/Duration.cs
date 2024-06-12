@@ -1,9 +1,12 @@
-﻿namespace ABC
+﻿using System.Dynamic;
+
+namespace ABC
 {
     public abstract class Duration : Item
     {
         public Length length { get; set; }
         public int dotCount { get; set; }
+        public Beam beam {get; internal set;} = null;
 
         public float baseLengthDuration => ParserUtil.lengthDurations[length];
 

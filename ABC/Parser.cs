@@ -457,13 +457,17 @@ namespace ABC
 
                 if (parseContext.beam.current == null)
                 {
-                    var beam =  new Beam(parseContext.beam.startItem.id, item.id);
+                    var beam =  new Beam(voice, parseContext.beam.startItem.id, item.id);
                     parseContext.beam.current = beam;
                     voice.beams.Add(beam);
+
+                    parseContext.beam.startItem.beam = beam;
+                    item.beam = beam;
                 }
                 else
                 {
                     parseContext.beam.current.endId = item.id;
+                    item.beam = parseContext.beam.current;
                 }
             }
             else
