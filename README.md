@@ -1,6 +1,6 @@
 # ABCSharp
 
-This library parses a (very) minimal set of [ABC Music Notation](http://abcnotation.com) files.
+This library parses a (very) minimal set of version 2.1 of the [ABC Music Notation](https://abcnotation.com/wiki/abc:standard:v2.1) standard.
 
 ### Supported Features:
 - Notes: Accidentals, Octatve Modifiers, Chords, Length Modifier, Dots, Broken Rhythm
@@ -15,6 +15,7 @@ This library parses a (very) minimal set of [ABC Music Notation](http://abcnotat
 - Bar: Single Line, Double Line, Repeat Start, Repeat End, Repeat End/Start, Start / End Bar, Additional custom bars as per ABC Spec
 - Multiple Voices: `clef` (treble, bass) and `name` modifiers
 - Slurs (non-dotted) and Ties
+- Beams
 
 ### Usage example:
 ```csharp

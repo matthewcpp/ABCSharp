@@ -5,7 +5,6 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ABC;
-using NuGet.Frameworks;
 
 namespace TestABC
 {
